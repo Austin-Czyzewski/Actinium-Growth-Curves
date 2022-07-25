@@ -27,6 +27,8 @@ matplotlib.rcParams['font.size']    = 16
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
+# ----------------- S C R I P T   S E T T I N G S  -------------------------- #
+
 Adjustable_Ratio = False
 Fudge_Factor = 1.56
 Reaction_Rate_Modification_Factor = 1.0
