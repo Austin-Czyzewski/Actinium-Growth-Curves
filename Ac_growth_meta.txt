@@ -1,0 +1,8 @@
+{"Custom projection power":0,
+ "Project length (days)":14,
+ "Project dt (s)": 86400,
+ "Moving avg length":500,
+ "Standard deviations from average":2,
+ "Project energy":13.6,
+ "Radium target mass (g)":0.0342,
+ "Show all daughters":false}
