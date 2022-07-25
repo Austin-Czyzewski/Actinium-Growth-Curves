@@ -29,7 +29,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 Adjustable_Ratio = False
 Fudge_Factor = 1.56
-Reaction_Rate_Modification_Factor = 1.2
+Reaction_Rate_Modification_Factor = 1.0
 
 # ------------------ H E L P E R  F U N C T I O N S ------------------------- #
 def parse_dates(Series):
@@ -138,12 +138,11 @@ def reaction_rate_calculator(energy):
     # energy_list         = [10.0,        11.0,       12.0,       13.0,       14.0,       15.0]
     energy_list         = [9,10,11,12,13,14,15,16,17,18,19,20]
     # reaction_rate_list  = [9.970e-7,    2.058e-6,   3.862e-6,   6.494e-6,   9.636e-6,   1.283e-5]
-    reaction_rate_list  = [1.506e-7*Reaction_Rate_Modification_Factor,3.412e-7*Reaction_Rate_Modification_Factor,\
-                           6.668e-7*Reaction_Rate_Modification_Factor,1.206e-6*Reaction_Rate_Modification_Factor,\
-                           1.982e-6*Reaction_Rate_Modification_Factor,2.909e-6*Reaction_Rate_Modification_Factor,\
-                           3.872e-6*Reaction_Rate_Modification_Factor,4.810e-6*Reaction_Rate_Modification_Factor,\
-                           5.752e-6*Reaction_Rate_Modification_Factor,6.621e-6*Reaction_Rate_Modification_Factor,\
-                           7.450e-6*Reaction_Rate_Modification_Factor,8.315e-6*Reaction_Rate_Modification_Factor]
+    reaction_rate_list  = [1.506e-7,3.412e-7,6.668e-7,1.206e-6,1.982e-6,\
+                           2.909e-6,3.872e-6,4.810e-6,5.752e-6,6.621e-6,\
+                           7.450e-6,8.315e-6]
+        
+    reaction_rate_list = [original * Reaction_Rate_Modification_Factor for original in reaction_rate_list]
 
     interpolate_func    = interpolate.interp1d(energy_list,reaction_rate_list)
     reaction_rate       = interpolate_func(energy)
@@ -240,13 +239,25 @@ print("Total integrated beam power: {:4.2f} kWhr".format(DF["Integrated Power (k
 print("Activity of Ac-225 at the last reported time: {:4.3f} mCi".format(latest_Ac225))
 
 # ------------------------ Projection Algorithm          ---------------- #
-Projected_power = DF["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).mean()
-Power_std = DF["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).std()
+#######################
+
+
+mask = (DF['Extraction'] == 'YES')
+masked_df = DF[mask]
+
+Projected_power = masked_df["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).mean()
+Power_std = masked_df["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).std()
+
+# Projected_power = DF["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).mean()
+# Power_std = DF["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).std()
 
 End = DF["Date and Time"].tail(1).item().to_pydatetime() # Get the last date
 # Create a series of datetime objects with parameters from meta data for projection
 dates = [End + DT.timedelta(seconds=x*meta["Project dt (s)"]) for x in range(int(86400*meta["Project length (days)"]/meta["Project dt (s)"]))]
-DF_proj = pd.DataFrame(columns=DF.columns)
+DF_proj = pd.DataFrame(columns=masked_df.columns)
+
+
+#######################
 DF_proj["Date and Time"] = dates
 DF_proj["Integrated Power (kWhr from Acc)"] = Projected_power
 DF_proj["Energy (MeV)"] = float(meta["Project energy"])
@@ -308,13 +319,11 @@ ax.plot(DF_proj["Date and Time"], DF_proj["Actinium-225 Activity (mCi)"],'g--')
 ax.plot(DF_proj["Date and Time"], DF_custom["Radium-225 Activity (mCi)"],'r:')
 ax.plot(DF_proj["Date and Time"], DF_custom["Actinium-225 Activity (mCi)"],'g:')
 
-ax.fill_between(DF_lower["Date and Time"],
-                DF_upper["Radium-225 Activity (mCi)"], DF_lower["Radium-225 Activity (mCi)"],
-                color='r',alpha=0.2)
 
-ax.fill_between(DF_lower["Date and Time"],
-                DF_upper["Actinium-225 Activity (mCi)"], DF_lower["Actinium-225 Activity (mCi)"],
-                color='g',alpha=0.2)
+ax.fill_between(DF_upper["Date and Time"],
+                DF_upper["Radium-225 Activity (mCi)"], DF_lower["Radium-225 Activity (mCi)"],
+                color='red',alpha=0.2)
+
 
 # Plotting black dashed line at last reported data
 ylim    = (0,0.5)
@@ -345,7 +354,7 @@ ax.annotate(caption_text,xy = (latest_time,latest_Ac225),
             
 ax.set_xticklabels(ax.get_xticklabels(), rotation = 45, fontsize = 14)
 ax.set(
-     title      = r'Niowave 1 mCi $^{225}$Ac Campaign',
+     title      = r'Niowave R&D milestones $^{225}$Ac Campaign',
      ylabel     = r'Activity (mCi)',
      ylim       = ylim,
      yscale     = 'linear'
@@ -368,7 +377,6 @@ ax.legend(legend_list,loc = 'upper left')
 
 # Add caption below xlabel
 caption_text = ("The black dotted line shows the date of the most recent irradiation data. \n\
-Power data are scaled to gold foil measurements on 3/18 and 4/5.\n\
 Assumptions for projection: {:2.0f} mg RaT, {:3.0f} +/- {:3.0f} W and {:3.0f} W with proper beam steering.".format(1000*meta["Radium target mass (g)"],
                                                                                                                                   Projected_power*1000,
                                                                                                                                   Interval*1000,
@@ -400,7 +408,7 @@ ylim = (0.0,ax.get_ylim()[1])
 
 ax.set_xticklabels(ax.get_xticklabels(), rotation = 45, fontsize = 16)
 ax.set(
-     title      = r'Niowave 1 mCi $^{225}$Ac Campaign - Beam Power',
+     title      = r'Niowave R&D milestones $^{225}$Ac Campaign - Beam Power',
      ylabel     = r'Power (W)',
      ylim       = ylim,
      yscale     = 'linear'
