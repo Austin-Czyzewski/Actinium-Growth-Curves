@@ -6,3 +6,5 @@ The other three necessary files are:
  - Beam data.csv
  - Target measurements.csv
  - Ac_growth_meta.txt
+
+This set of programs is intended to help aide in the planning and execition of hitting R&D milestones.
