@@ -13,3 +13,14 @@ showing the prediction for the current production run.
 
 It is also desirable to eventually be able to use this tool to plan production runs for either a 
 required amount of actinium, or to determine production yield for a run of a specified time.
+
+# Dependencies
+- Datetime
+- JSON
+- Time
+- Tkinter
+- Matplotlib
+- Numpy
+- Pandas
+- Scipy
+
