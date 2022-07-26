@@ -19,6 +19,8 @@ from matplotlib.dates import DateFormatter
 import time as timer
 import pandas as pd
 import json
+import warnings
+warnings.filterwarnings("ignore", message="FixedFormatter should only be used together with FixedLocator")
 
 # ------------------- P L O T   S E T T I N G S  ---------------------------- #
 
@@ -76,7 +78,7 @@ def reaction_calculator(df,ra_225_init,ac_225_init, fr_221_init=12e7,at_217_init
             Ra225decays = ra_225_l*Ra225[-1]
             Ra225.append(Ra225[-1] + (R-Ra225decays)*row["dt (s)"])
             Ac225decays = ac_225_l * Ac225[-1]
-            print(row["Extraction"])
+            # print(row["Extraction"])
             try:
                 if row['Extraction'].lower() == 'yes':
                     Ac225.append(0)
@@ -343,7 +345,7 @@ try:
         ax.text(date,float(data),data,ha='right',va='center',fontsize = 10) 
 
 except:
-    print("No measurement to display")
+    print("#"*60+'\n',"No measurements to display",'\n'+"#"*60)
 
 caption_text = "{:.3f}".format(latest_Ac225)
 ax.annotate(caption_text,xy = (latest_time,latest_Ac225),
@@ -354,7 +356,7 @@ ax.annotate(caption_text,xy = (latest_time,latest_Ac225),
             va = 'center',
             fontsize = 16)
             
-ax.set_xticklabels(ax.get_xticklabels(), rotation = 45, fontsize = 14)
+ax.set_xticklabels(ax.get_xticklabels(), rotation = 45, fontsize = 14);
 ax.set(
      title      = r'Niowave R&D milestones $^{225}$Ac Campaign',
      ylabel     = r'Activity (mCi)',
@@ -409,7 +411,7 @@ ax.plot(DF["Date and Time"],DF["power"])
 
 ylim = (0.0,ax.get_ylim()[1])
 
-ax.set_xticklabels(ax.get_xticklabels(), rotation = 45, fontsize = 16)
+ax.set_xticklabels(ax.get_xticklabels(), rotation = 45, fontsize = 16);
 ax.set(
      title      = r'Niowave R&D milestones $^{225}$Ac Campaign - Beam Power',
      ylabel     = r'Power (W)',
