@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from tktimepicker import AnalogPicker
 
 class GUI:
     def __init__(self,master,version,mod_date):
@@ -9,16 +8,30 @@ class GUI:
 
         self.master = master
 
+        # GUI variable definitions
+        self.hour = tk.StringVar()
+        self.minute = tk.StringVar()
+
+        # Frame creation
         self.dose_frame()
+
+        # Frame placement
         self.doseFR.grid(row=0,column=0)
+
+        
         
     def dose_frame(self):
         # Create elements
         self.doseFR = tk.LabelFrame(self.master,
                                     text="Dose data entry")
         self.end_time_label = ttk.Label(self.doseFR,
-                                        text="End time")
-##        self.time_entry=AnalogPicker(self.doseFR)
+                                        text="End time (24hr format)")
+        self.hourEntry = ttk.Entry(self.doseFR,
+                                   textvariable=self.hour)
+        self.colon_label = ttk.Label(self.doseFR,
+                                     text=":")
+        self.minEntry = ttk.Entry(self.doseFR,
+                                  textvariable=self.minute)
         
         self.dose_label = ttk.Label(self.doseFR,
                                     text="Dose (Gy)")
@@ -32,7 +45,9 @@ class GUI:
 
         # Place elements
         self.end_time_label.grid(column=0,row=0)
-##        self.time_entry.grid(column=1,row=0)
+        self.hourEntry.grid(column=1, row=0)
+        self.colon_label.grid(column=2,row=0)
+        self.minEntry.grid(column=3,row=0)
         self.dose_label.grid(column=0,row=1)
         self.extraction_label.grid(column=0,row=2)
         self.target_mass_label.grid(column=0,row=3)
@@ -43,7 +58,7 @@ class GUI:
                                    
 if __name__ == '__main__':
 
-    __version__ = "0.0.0"
+    __version__ = "0.0.1"
     last_modified = "26-July-2022"
 
     root = tk.Tk()
