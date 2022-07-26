@@ -16,7 +16,6 @@ import numpy as np
 from scipy import interpolate
 import datetime as DT
 from matplotlib.dates import DateFormatter
-import time as timer
 import pandas as pd
 import json
 

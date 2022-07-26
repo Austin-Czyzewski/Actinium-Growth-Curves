@@ -17,7 +17,6 @@ required amount of actinium, or to determine production yield for a run of a spe
 # Dependencies
 - Datetime
 - JSON
-- Time
 - Tkinter
 - Matplotlib
 - Numpy
