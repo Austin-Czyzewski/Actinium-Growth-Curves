@@ -7,17 +7,21 @@ class GUI:
         self.mod_date = mod_date
 
         self.master = master
+        
 
         # GUI variable definitions
-        self.hour = tk.StringVar()
-        self.minute = tk.StringVar()
+        self.hour = tk.DoubleVar(value=24)
+        self.minute = tk.DoubleVar(value=59)
+        self.dose = tk.DoubleVar()
+        self.extraction = tk.BooleanVar(value=False)
+        self.targetmass = tk.DoubleVar(value=38.0)
 
         # Frame creation
         self.dose_frame()
 
         # Frame placement
         self.doseFR.grid(row=0,column=0)
-
+        self.doseFR.grid_columnconfigure(1,weight=1)
         
         
     def dose_frame(self):
@@ -35,10 +39,16 @@ class GUI:
         
         self.dose_label = ttk.Label(self.doseFR,
                                     text="Dose (Gy)")
+        self.doseEntry = ttk.Entry(self.doseFR,
+                                   textvariable=self.dose)
         self.extraction_label = ttk.Label(self.doseFR,
                                           text="Ac-225 extraction")
+        self.extractionCB = ttk.Checkbutton(self.doseFR,
+                                         variable=self.extraction)
         self.target_mass_label = ttk.Label(self.doseFR,
                                            text="Target mass (mg)")
+        self.targetEntry = ttk.Entry(self.doseFR,
+                                     textvariable=self.targetmass)
         self.submitPB = ttk.Button(self.doseFR,
                                    text="Submit",
                                    command=self.submit_data)
@@ -48,10 +58,17 @@ class GUI:
         self.hourEntry.grid(column=1, row=0)
         self.colon_label.grid(column=2,row=0)
         self.minEntry.grid(column=3,row=0)
+        
         self.dose_label.grid(column=0,row=1)
+        self.doseEntry.grid(column=1,row=1)
+        
         self.extraction_label.grid(column=0,row=2)
+        self.extractionCB.grid(column=1,row=2)
+        
         self.target_mass_label.grid(column=0,row=3)
-        self.submitPB.grid(column=0,row=4,rowspan=2)
+        self.targetEntry.grid(column=1,row=3)
+        
+        self.submitPB.grid(column=0,row=4,columnspan=4)
 
     def submit_data(self):
         pass
