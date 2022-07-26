@@ -50,7 +50,7 @@ def parse_date(date):
     H,M = t.split(":")
     return(DT.datetime(int(Y),int(m),int(D),int(H),int(M)))
 
-def reaction_calculator(df,ra_225_init,ac_225_init, fr_221_init=12e7,at_217_init=0,bi_213_init=0):
+def reaction_calculator(df,ra_225_init,ac_225_init):
     '''Takes a data frame with "Integrated Power (kWhr from Acc)", "dt (s)",
     "Energy (MeV)", and "Radium target mass (g)" columns and appends "power",
     "electrons", "reaction rate per gram", "reactions per second", "Radium-225",
@@ -64,15 +64,7 @@ def reaction_calculator(df,ra_225_init,ac_225_init, fr_221_init=12e7,at_217_init
 
     Ra225 = []
     Ac225 = []
-    Fr221 = []
-    At217 = []
-    Bi213 = []
-    Po213 = []
-    Tl209 = []
-    Pb209 = []
-    Bi209 = [] 
-    Tl205 = []  
-
+    
     for i,row in df.iterrows():
         if i > 0:
             R = row["reactions per second"]
@@ -88,53 +80,17 @@ def reaction_calculator(df,ra_225_init,ac_225_init, fr_221_init=12e7,at_217_init
             except:
                 # print(Exception)
                 Ac225.append(Ac225[-1] + (Ra225decays - Ac225decays)*row["dt (s)"])
-            
-            if meta["Show all daughters"]:
-                Fr221decays = fr_221_l * Fr221[-1]
-                newFr221 = Fr221[-1] + (Ac225decays - Fr221decays)*row["dt (s)"]
-                if newFr221 < 0:
-                    newFr221 = 0
-                    Fr221decays = Ac225decays + (Fr221[-1]/row["dt (s)"])
-                Fr221.append(newFr221)
-                
-                At217decays = at_217_l * At217[-1]
-                newAt217 = At217[-1] + (Fr221decays - At217decays)*row["dt (s)"]
-                if newAt217 < 0:
-                    newAt217 = 0
-                    At217decays = Fr221decays + (At217[-1]/row["dt (s)"])
-                At217.append(newAt217)
-
-                Bi213decays = bi_213_l * Bi213[-1]
-                newBi213 = Bi213[-1] + (At217decays - Bi213decays)*row["dt (s)"]
-##                if newBi213 < 0:
-##                    newBi213 = 0
-##                    Bi213decays = At217decays + (Bi213[-1]/row["dt (s)"])
-                Bi213.append(newBi213)
                 
             else:
                 pass
         else:
             Ra225.append(ra_225_init)
-            Ac225.append(ac_225_init)
-            if meta["Show all daughters"]:
-                Fr221.append(fr_221_init)
-                At217.append(at_217_init)
-                Bi213.append(bi_213_init)
-            else:
-                pass
-            
+            Ac225.append(ac_225_init)            
             
     df["Radium-225"] = Ra225
     df["Actinium-225"] = Ac225
     df["Radium-225 Activity (mCi)"] = df["Radium-225"] * ra_225_l / 3.7e7
     df["Actinium-225 Activity (mCi)"] = df["Actinium-225"] * ac_225_l / 3.7e7
-    if meta["Show all daughters"]:
-        df["Francium-221"] = Fr221
-        df["Francium-221 Activity (mCi)"] = df["Francium-221"] * fr_221_l / 3.7e7
-        df["Astatine-217"] = At217
-        df["Astatine-217 Activity (mCi)"] = df["Astatine-217"] * at_217_l / 3.7e7
-        df["Bismuth-213"] = Bi213
-        df["Bismuth-213 Activity (mCi)"] = df["Bismuth-213"] * bi_213_l / 3.7e7
         
     df.reset_index()
     
@@ -159,25 +115,9 @@ def dose_to_accumulated_power(dose):
 # ------------------- D E C A Y   R A T E S  ---------------------------- #
 ac_225_hl = 8.57e5 # 9.9 days
 ra_225_hl = 1.29e6 # 14.9 days
-fr_221_hl = 2.94e2 # 4.9 minutes
-at_217_hl = 3.23e-2 # Astatine 217 really doesn't want to exist.
-bi_213_hl = 2.74e3 # 45.59 minutes alpha 2.09% to Tl209, beta 97.91% Po213
-po_213_hl = 4.2e-6 # Polonium 213 really REALLY doesn't want to exist
-tl_209_hl = 1.30e2 # 2.161 minutes
-pb_209_hl = 1.17e5 # 3.253 hours
-bi_209_hl = 6.00e26 # 1.9e19 years
-tl_205_hl  = np.inf # stable
 
 ac_225_l = np.log(2)/ac_225_hl
 ra_225_l = np.log(2)/ra_225_hl
-fr_221_l = np.log(2)/fr_221_hl
-at_217_l = np.log(2)/at_217_hl
-bi_213_l = np.log(2)/bi_213_hl
-po_213_l = np.log(2)/po_213_hl
-tl_209_l = np.log(2)/tl_209_hl
-pb_209_l = np.log(2)/pb_209_hl 
-bi_209_l = np.log(2)/bi_209_hl 
-tl_205_l = np.log(2)/tl_205_hl  
     
 # ------------------- R E T R I E V E   D A T A  ---------------------------- #
 
@@ -316,12 +256,7 @@ fig, ax = plt.subplots(1,1,figsize=(11,8.5))
 
 ax.plot(DF["Date and Time"], DF["Radium-225 Activity (mCi)"],'r')
 ax.plot(DF["Date and Time"], DF["Actinium-225 Activity (mCi)"],'g')
-if meta["Show all daughters"]:
-    ax.plot(DF["Date and Time"], DF["Astatine-217 Activity (mCi)"],'orange')
-    ax.plot(DF["Date and Time"], DF["Francium-221 Activity (mCi)"],'y')
-    ax.plot(DF["Date and Time"], DF["Bismuth-213 Activity (mCi)"],'k')
     
-
 # Plot projections
 ax.plot(DF_proj["Date and Time"], DF_proj["Radium-225 Activity (mCi)"],'r--')
 ax.plot(DF_proj["Date and Time"], DF_proj["Actinium-225 Activity (mCi)"],'g--')
@@ -390,7 +325,6 @@ Assumptions for projection: {:2.0f} mg RaT, {:3.0f} +/- {:3.0f} W and {:3.0f} W 
                                                                                                                                   Projected_power*1000,
                                                                                                                                   Interval*1000,
                                                                                                                                   meta["Custom projection power"]*1000))
-
 trans = transforms.blended_transform_factory(
      ax.transAxes, fig.transFigure
 )              # Makes x axis 'axes' coordinates and y axis 'figure' coordinates
@@ -400,7 +334,6 @@ ax.text(0.5, 0.03, caption_text, ha = 'center', va = 'top', fontsize = 12, trans
 
 date_string = DT.date.today().strftime('%B %d, %Y')
 ax.text(1.00,1.001,date_string,fontsize = 8, ha = 'right', va = 'bottom', transform = ax.transAxes)
-
 
 # Save figure as a png
 date_string_2   = DT.date.today().strftime('%Y%m%d')
