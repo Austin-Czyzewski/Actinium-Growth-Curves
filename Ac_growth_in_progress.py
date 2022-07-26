@@ -399,6 +399,7 @@ ax.text(1.00,1.001,date_string,fontsize = 8, ha = 'right', va = 'bottom', transf
 date_string_2   = DT.date.today().strftime('%Y%m%d')
 file_name = f'{date_string_2}_ac_225_growth_curve.png'
 plt.savefig(file_name, bbox_inches = 'tight')
+plt.savefig("current_ac_225_growth_curve.png")
 
 # ------------------- P O W E R   P L O T T I N G ---------------------------- #
 
