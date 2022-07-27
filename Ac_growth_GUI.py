@@ -3,11 +3,26 @@ from tkinter import ttk
 import glob
 import os
 
-global beam_data_path
+global beam_data_path, last_energy, last_target_mass
 beam_data_path = glob.glob("beam*.csv")[0]
 from datetime import datetime
 
-# print(datetime.strptime(test_time, '%y%m%d').day)
+try:
+    with open(beam_data_path, 'r') as f:
+        lines = f.readlines()   
+        last_line = lines[-1]
+        f.close()
+        
+    print(last_line)
+    last_energy = float(last_line.split(",")[3])
+    print(last_energy)
+    last_target_mass = float(last_line.split(",")[-2])*1000
+    print(last_target_mass)
+    
+except:
+    last_energy = 15
+    last_target_mass = 100
+
 
 class GUI:
     def __init__(self,master,version,mod_date):
@@ -23,8 +38,8 @@ class GUI:
         self.minute = tk.DoubleVar(value=59)
         self.dose = tk.DoubleVar()
         self.extraction = tk.BooleanVar(value=False)
-        self.targetmass = tk.DoubleVar(value=38.0)
-        self.energy  = tk.DoubleVar(value = 13.6)
+        self.targetmass = tk.DoubleVar(value = last_target_mass)
+        self.energy  = tk.DoubleVar(value = last_energy)
 
         # Frame creation
         self.dose_frame()
@@ -44,40 +59,33 @@ class GUI:
         
         self.date_label = ttk.Label(self.doseFR,
                                     text = "Date (YYMMDD)")
-        
         self.dateEntry = ttk.Entry(self.doseFR, 
                                    textvariable=self.date)
         
         self.hourEntry = ttk.Entry(self.doseFR,
                                    textvariable=self.hour)
-        
         self.colon_label = ttk.Label(self.doseFR,
                                      text=":")
-        
         self.minEntry = ttk.Entry(self.doseFR,
                                   textvariable=self.minute)
         
         self.dose_label = ttk.Label(self.doseFR,
                                     text="Dose (Gy)")
-        
         self.doseEntry = ttk.Entry(self.doseFR,
                                    textvariable=self.dose)
         
         self.extraction_label = ttk.Label(self.doseFR,
                                           text="Ac-225 extraction")
-        
         self.extractionCB = ttk.Checkbutton(self.doseFR,
                                          variable=self.extraction)
         
         self.target_mass_label = ttk.Label(self.doseFR,
                                            text="Target mass (mg)")
-        
         self.targetEntry = ttk.Entry(self.doseFR,
                                      textvariable=self.targetmass)
         
         self.energy_label = ttk.Label(self.doseFR,
                                       text = "Beam Energy (MeV)")
-        
         self.energyEntry = ttk.Entry(self.doseFR,
                                      textvariable = self.energy)
         
@@ -113,11 +121,15 @@ class GUI:
         submit_day = datetime.strptime(self.date.get(), '%y%m%d').day
         submit_month = datetime.strptime(self.date.get(), '%y%m%d').month
         submit_year = datetime.strptime(self.date.get(), '%y%m%d').year
+        
         submit_hour = str(int(self.hour.get())).zfill(2)
+        if submit_hour > 23:
+            print("Hour must be between 0 and 23")
+            
         submit_minute = str(int(self.minute.get())).zfill(2)
         submit_energy = self.energy.get()
         submit_dose = self.dose.get()
-        submit_target_mass = self.targetmass.get()
+        submit_target_mass = self.targetmass.get()/1000
         submit_extraction = ("YES" if self.extraction.get() == True else "NO")
         
         with open(beam_data_path, 'a') as file:

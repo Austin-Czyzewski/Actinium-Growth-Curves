@@ -34,6 +34,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 Adjustable_Ratio = False
 Fudge_Factor = 1.56
 Reaction_Rate_Modification_Factor = 1.0
+mGy_min_watt = 1.3 #mGy/minute/Watt loosely calibrated last run for IC position
 
 # ------------------ H E L P E R  F U N C T I O N S ------------------------- #
 def parse_dates(Series):
@@ -152,6 +153,9 @@ def reaction_rate_calculator(energy):
     reaction_rate       = interpolate_func(energy)
     return reaction_rate
 
+
+def dose_to_accumulated_power(dose):
+    return dose/mGy_min_watt/60
 # ------------------- D E C A Y   R A T E S  ---------------------------- #
 ac_225_hl = 8.57e5 # 9.9 days
 ra_225_hl = 1.29e6 # 14.9 days
@@ -183,6 +187,7 @@ with open("Ac_growth_meta.txt","r") as f:
     
 DF = pd.read_csv("Beam data.csv",parse_dates=True)
 DFmeas = pd.read_csv("Target measurements.csv")
+DF["Integrated Power (kWhr from Acc)"] = DF["Accumulated Dose"].apply(dose_to_accumulated_power)
 
 # Create calculated data
 Integrated_power_list = list(DF["Integrated Power (kWhr from Acc)"])
