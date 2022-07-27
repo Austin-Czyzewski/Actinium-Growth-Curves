@@ -123,7 +123,8 @@ class GUI:
         submit_year = datetime.strptime(self.date.get(), '%y%m%d').year
         
         submit_hour = str(int(self.hour.get())).zfill(2)
-        if submit_hour > 23:
+        
+        if int(submit_hour) > 23:
             print("Hour must be between 0 and 23")
             
         submit_minute = str(int(self.minute.get())).zfill(2)
@@ -138,6 +139,10 @@ class GUI:
             file.write(f"{submit_hour}:{submit_minute},")
             file.write(f"{submit_energy},{submit_dose},0,{submit_target_mass},")
             file.write(f"{submit_extraction}\n")
+            
+        self.dose.set(0)
+        # self.energy.set(0)
+        # self.targetmass.set(0)
         pass
                                    
 if __name__ == '__main__':

@@ -1,3 +1,3 @@
-python ac_growth_gui.py
+python ac_growth_GUI.py
 python Ac_growth_in_progress.py
 current_ac_225_growth_curve.png
