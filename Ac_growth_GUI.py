@@ -7,9 +7,6 @@ global beam_data_path
 beam_data_path = glob.glob("beam*.csv")[0]
 from datetime import datetime
 
-test_time = datetime.today().strftime('%y%m%d')
-print(test_time)
-
 # print(datetime.strptime(test_time, '%y%m%d').day)
 
 class GUI:
@@ -113,9 +110,9 @@ class GUI:
 
     def submit_data(self):
         
-        submit_day = datetime.strptime(test_time, '%y%m%d').day
-        submit_month = datetime.strptime(test_time, '%y%m%d').month
-        submit_year = datetime.strptime(test_time, '%y%m%d').year
+        submit_day = datetime.strptime(self.date.get(), '%y%m%d').day
+        submit_month = datetime.strptime(self.date.get(), '%y%m%d').month
+        submit_year = datetime.strptime(self.date.get(), '%y%m%d').year
         submit_hour = str(int(self.hour.get())).zfill(2)
         submit_minute = str(int(self.minute.get())).zfill(2)
         submit_energy = self.energy.get()
