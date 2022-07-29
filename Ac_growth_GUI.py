@@ -30,7 +30,6 @@ class GUI:
         self.mod_date = mod_date
 
         self.master = master
-        
 
         # GUI variable definitions
         self.date = tk.StringVar(value = datetime.today().strftime('%y%m%d'))
@@ -111,10 +110,10 @@ class GUI:
         
         self.target_mass_label.grid(column=0,row=4)
         self.targetEntry.grid(column=1,row=4)
-        self.energy_label.grid(column=2, row=4)
-        self.energyEntry.grid(column=3, row=4)
+        self.energy_label.grid(column=0, row=5)
+        self.energyEntry.grid(column=1, row=5)
         
-        self.submitPB.grid(column=0,row=5,columnspan=5)
+        self.submitPB.grid(column=0,row=6,columnspan=5)
 
     def submit_data(self):
         
@@ -148,7 +147,7 @@ class GUI:
 if __name__ == '__main__':
 
     __version__ = "0.0.1"
-    last_modified = "26-July-2022"
+    last_modified = "29-July-2022"
 
     root = tk.Tk()
 
