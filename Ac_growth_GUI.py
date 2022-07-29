@@ -2,10 +2,10 @@ import tkinter as tk
 from tkinter import ttk
 import glob
 import os
+from datetime import datetime
 
 global beam_data_path, last_energy, last_target_mass
 beam_data_path = glob.glob("beam*.csv")[0]
-from datetime import datetime
 
 try:
     with open(beam_data_path, 'r') as f:
