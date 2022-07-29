@@ -1,10 +1,11 @@
 import tkinter as tk
+from tkinter.filedialog import askopenfile
 from tkinter import ttk
 import os
 from datetime import datetime
 
-def get_last_data():
-    with open("Beam data.csv",'r') as f:
+def get_last_data(path):
+    with open(path,'r') as f:
         lines = f.readlines()
         last_line = lines[-1]
         
@@ -29,23 +30,48 @@ class GUI:
 
         self.master = master
 
-        last_energy, last_target_mass = get_last_data()
         # GUI variable definitions
         self.date = tk.StringVar(value = datetime.today().strftime('%y%m%d'))
         self.hour = tk.DoubleVar(value=24)
         self.minute = tk.DoubleVar(value=59)
         self.dose = tk.DoubleVar()
         self.extraction = tk.BooleanVar(value=False)
-        self.targetmass = tk.DoubleVar(value = last_target_mass)
-        self.energy  = tk.DoubleVar(value = last_energy)
+        self.targetmass = tk.DoubleVar()
+        self.energy  = tk.DoubleVar()
+        self.beamPath = tk.StringVar()
 
         # Frame creation
         self.dose_frame()
+        self.dir_frame()
 
         # Frame placement
-        self.doseFR.grid(row=0,column=0)
+        self.dirFR.grid(row=0,column=0)
+        self.doseFR.grid(row=1,column=0)
+
+        self.dirFR.grid_columnconfigure(1,weight=1)
         self.doseFR.grid_columnconfigure(1,weight=1)
         
+    def dir_cmd(self):
+        self.beamPath.set(askopenfile().name)
+        print("Beam path set to {}".format(self.beamPath.get()))
+        energy, mass = get_last_data(self.beamPath.get())
+        self.energy.set(energy)
+        self.targetmass.set(mass)
+        
+    def dir_frame(self):
+        self.dirFR = tk.LabelFrame(self.master,
+                                   text="Choose a beam data file")
+
+        # Create elements
+        self.beamdirLabel = ttk.Label(self.dirFR,
+                                      text="Beam data database: ")
+        self.ask_filePB = ttk.Button(self.dirFR,
+                                     text="Select",
+                                     command=self.dir_cmd)
+
+        # Place elements
+        self.beamdirLabel.grid(column=0,row=0)
+        self.ask_filePB.grid(column=1,row=0)
         
     def dose_frame(self):
         # Create elements
