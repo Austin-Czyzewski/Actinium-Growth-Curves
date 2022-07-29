@@ -16,7 +16,6 @@ import numpy as np
 from scipy import interpolate
 import datetime as DT
 from matplotlib.dates import DateFormatter
-import time as timer
 import pandas as pd
 import json
 import warnings
@@ -71,14 +70,12 @@ def reaction_calculator(df,ra_225_init,ac_225_init):
             Ra225decays = ra_225_l*Ra225[-1]
             Ra225.append(Ra225[-1] + (R-Ra225decays)*row["dt (s)"])
             Ac225decays = ac_225_l * Ac225[-1]
-            # print(row["Extraction"])
             try:
                 if row['Extraction'].lower() == 'yes':
                     Ac225.append(0)
                 else:
                     Ac225.append(Ac225[-1] + (Ra225decays - Ac225decays)*row["dt (s)"])
             except:
-                # print(Exception)
                 Ac225.append(Ac225[-1] + (Ra225decays - Ac225decays)*row["dt (s)"])
                 
             else:
@@ -378,7 +375,6 @@ trans = transforms.blended_transform_factory(
 )              # Makes x axis 'axes' coordinates and y axis 'figure' coordinates
 
 # Add current date to upper right corner of plot
-
 date_string = DT.date.today().strftime('%B %d, %Y')
 ax.text(1.00,1.001,date_string,fontsize = 8, ha = 'right', va = 'bottom', transform = ax.transAxes)
 
