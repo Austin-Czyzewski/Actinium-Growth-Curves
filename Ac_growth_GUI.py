@@ -4,24 +4,26 @@ import glob
 import os
 from datetime import datetime
 
-global beam_data_path, last_energy, last_target_mass
-beam_data_path = glob.glob("beam*.csv")[0]
+##global beam_data_path, last_energy, last_target_mass
+##beam_data_path = glob.glob("beam*.csv")[0]
 
-try:
-    with open(beam_data_path, 'r') as f:
-        lines = f.readlines()   
+def get_last_data():
+    with open("Beam data.csv",'r') as f:
+        lines = f.readlines()
         last_line = lines[-1]
-        f.close()
         
-    print(last_line)
-    last_energy = float(last_line.split(",")[3])
-    print(last_energy)
-    last_target_mass = float(last_line.split(",")[-2])*1000
-    print(last_target_mass)
-    
-except:
-    last_energy = 15
-    last_target_mass = 100
+        try:              
+            print(last_line)
+            last_energy = float(last_line.split(",")[3])
+            print(last_energy)
+            last_target_mass = float(last_line.split(",")[-2])*1000
+            print(last_target_mass)
+            
+        except:
+            print("Failed to extract last line data")
+            last_energy = 15
+            last_target_mass = 100
+        return(last_energy, last_target_mass)
 
 
 class GUI:
@@ -31,6 +33,7 @@ class GUI:
 
         self.master = master
 
+        last_energy, last_target_mass = get_last_data()
         # GUI variable definitions
         self.date = tk.StringVar(value = datetime.today().strftime('%y%m%d'))
         self.hour = tk.DoubleVar(value=24)
