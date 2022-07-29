@@ -1,10 +1,12 @@
 ''' Python Plotting Template
  Glenn Clapp
  Austin Czyzewski
+ 23 April 2022
+
+ Based on work by
  Chad Denbrock
- Niowave, Inc.
  December 2020
- Fork created 23 April 2022
+ 
  Niowave, Inc.
  '''
 # ------------------- L I B R A R Y   I M P O R T S ------------------------- #
