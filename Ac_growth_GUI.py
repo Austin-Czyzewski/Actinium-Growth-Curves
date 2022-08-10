@@ -150,6 +150,7 @@ class GUI:
         
         if int(submit_hour) > 23:
             print("Hour must be between 0 and 23")
+            return()
             
         submit_minute = str(int(self.minute.get())).zfill(2)
         submit_energy = self.energy.get()
@@ -157,7 +158,7 @@ class GUI:
         submit_target_mass = self.targetmass.get()/1000
         submit_extraction = ("YES" if self.extraction.get() == True else "NO")
         
-        with open(beam_data_path, 'a') as file:
+        with open(self.beamPath.get(), 'a') as file:
             file.write(f"{submit_month}/{submit_day}/{submit_year} {submit_hour}:{submit_minute},")
             file.write(f"{submit_month}/{submit_day}/{submit_year},")
             file.write(f"{submit_hour}:{submit_minute},")
