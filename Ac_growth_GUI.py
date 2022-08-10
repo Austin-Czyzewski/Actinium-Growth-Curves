@@ -32,7 +32,7 @@ class GUI:
 
         # GUI variable definitions
         self.date = tk.StringVar(value = datetime.today().strftime('%y%m%d'))
-        self.hour = tk.DoubleVar(value=24)
+        self.hour = tk.DoubleVar(value=23)
         self.minute = tk.DoubleVar(value=59)
         self.dose = tk.DoubleVar()
         self.extraction = tk.BooleanVar(value=False)
@@ -68,11 +68,17 @@ class GUI:
         self.ask_filePB = ttk.Button(self.dirFR,
                                      text="Select",
                                      command=self.dir_cmd)
+        self.reportPB = ttk.Button(self.dirFR,
+                                   text="Create Report",
+                                   command=self.report_cmd)
 
         # Place elements
         self.beamdirLabel.grid(column=0,row=0)
-        self.ask_filePB.grid(column=1,row=0)
-        
+        self.ask_filePB.grid(column=1,row=0,padx=2,pady=2)
+        self.reportPB.grid(column=2,row=0,padx=2,pady=2)
+
+    def report_cmd(self):
+        pass
     def dose_frame(self):
         # Create elements
         self.doseFR = tk.LabelFrame(self.master,
@@ -166,14 +172,11 @@ class GUI:
             file.write(f"{submit_extraction}\n")
             
         self.dose.set(0)
-        # self.energy.set(0)
-        # self.targetmass.set(0)
-        pass
                                    
 if __name__ == '__main__':
 
     __version__ = "0.0.1"
-    last_modified = "29-July-2022"
+    last_modified = "10-August-2022"
 
     root = tk.Tk()
 
