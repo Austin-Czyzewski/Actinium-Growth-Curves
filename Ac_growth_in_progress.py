@@ -119,7 +119,7 @@ def reaction_rate_calculator(energy):
 def dose_to_accumulated_power(dose):
     return dose/mGy_min_watt/60
 
-def main():
+def main(beam_data):
     
         
     # ------------------- R E T R I E V E   D A T A  ---------------------------- #
@@ -128,7 +128,7 @@ def main():
     with open("Ac_growth_meta.txt","r") as f:
         meta = json.load(f)
         
-    DF = pd.read_csv("Beam data.csv",parse_dates=True)
+    DF = pd.read_csv(beam_data,parse_dates=True)
     DFmeas = pd.read_csv("Target measurements.csv")
     DF["Integrated Power (kWhr from Acc)"] = DF["Accumulated Dose"].apply(dose_to_accumulated_power)
 
@@ -391,4 +391,4 @@ def main():
     plt.savefig(file_name, bbox_inches = 'tight')
 
 if __name__ == '__main__':
-    main()
+    main("Beam data.csv")
