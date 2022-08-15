@@ -30,13 +30,6 @@ matplotlib.rcParams['font.size']    = 16
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-# ----------------- S C R I P T   S E T T I N G S  -------------------------- #
-
-Adjustable_Ratio = False
-Fudge_Factor = 1.56
-Reaction_Rate_Modification_Factor = 1.0
-mGy_min_watt = 1.3 #mGy/minute/Watt loosely calibrated last run for IC position
-
 # ------------------ H E L P E R  F U N C T I O N S ------------------------- #
 def parse_dates(Series):
     new_series = []
@@ -51,7 +44,7 @@ def parse_date(date):
     H,M = t.split(":")
     return(DT.datetime(int(Y),int(m),int(D),int(H),int(M)))
 
-def reaction_calculator(df,ra_225_init,ac_225_init):
+def reaction_calculator(df,ra_225_init,ac_225_init,Reaction_Rate_Modification_Factor):
     '''Takes a data frame with "Integrated Power (kWhr from Acc)", "dt (s)",
     "Energy (MeV)", and "Radium target mass (g)" columns and appends "power",
     "electrons", "reaction rate per gram", "reactions per second", "Radium-225",
@@ -67,7 +60,7 @@ def reaction_calculator(df,ra_225_init,ac_225_init):
     
     df["power"] = df["Integrated Power (kWhr from Acc)"] / (df["dt (s)"] / 3600)*1000
     df["electrons"] = df["power"]/(df["Energy (MeV)"]* 1e6 * 1.6e-19)
-    df["reaction rate per gram"] = reaction_rate_calculator(df["Energy (MeV)"])
+    df["reaction rate per gram"] = reaction_rate_calculator(df["Energy (MeV)"],Reaction_Rate_Modification_Factor)
     df["reactions per second"] = df["reaction rate per gram"] * df["Radium target mass (g)"] * df["electrons"]
 
     Ra225 = []
@@ -100,7 +93,7 @@ def reaction_calculator(df,ra_225_init,ac_225_init):
         
     df.reset_index()
     
-def reaction_rate_calculator(energy):
+def reaction_rate_calculator(energy,Reaction_Rate_Modification_Factor):
     '''Reaction rates given in rxns/g/e for Green Curve Geometry at 1.0 ml solution volume'''
     # energy_list         = [10.0,        11.0,       12.0,       13.0,       14.0,       15.0]
     energy_list         = [9,10,11,12,13,14,15,16,17,18,19,20]
@@ -116,7 +109,7 @@ def reaction_rate_calculator(energy):
     return reaction_rate
 
 
-def dose_to_accumulated_power(dose,dt):
+def dose_to_accumulated_power(dose,dt,mGy_min_watt):
     '''takes a dose measurement in Gy and a time step in seconds from the
     previous measurement and estimates an integrated power in kWhr required to
     produce that dose.'''
@@ -134,7 +127,14 @@ def main(beam_data):
     # Import data from file
     with open("Ac_growth_meta.txt","r") as f:
         meta = json.load(f)
-        
+
+    # ----------------- S C R I P T   S E T T I N G S  -------------------------- #
+
+    Adjustable_Ratio = meta["Adjustable ratio"]
+    Fudge_Factor = meta["Fudge factor"]
+    Reaction_Rate_Modification_Factor = meta["Reaction rate modification factor"]
+    mGy_min_watt = meta["mGy per min per watt"]
+
     DF = pd.read_csv(beam_data,parse_dates=True)
     DFmeas = pd.read_csv("Target measurements.csv")
 
@@ -152,7 +152,10 @@ def main(beam_data):
     # Create calculated data
 ##    DF["Integrated Power (kWhr from Acc)"] = DF["Accumulated Dose"].apply(dose_to_accumulated_power)
     
-    DF["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(DF["Accumulated Dose"],DF["dt (s)"])
+    DF["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(DF["Accumulated Dose"],
+                                                                       DF["dt (s)"],
+                                                                       mGy_min_watt)
+    
     Integrated_power_list = list(DF["Integrated Power (kWhr from Acc)"])
     
     start_time = DF["Date and Time"][0].to_pydatetime()
@@ -193,7 +196,8 @@ def main(beam_data):
     initial_ac_225_N = 0
     reaction_calculator(DF,
                         initial_ra_225_N,
-                        initial_ac_225_N)
+                        initial_ac_225_N,
+                        Reaction_Rate_Modification_Factor)
 
     latest_Ac225 = DF["Actinium-225 Activity (mCi)"].tail(1).item()
 
@@ -243,19 +247,23 @@ def main(beam_data):
 
     reaction_calculator(DF_proj,
                         DF.tail(1)["Radium-225"].item(),
-                        DF.tail(1)["Actinium-225"].item())
+                        DF.tail(1)["Actinium-225"].item(),
+                        Reaction_Rate_Modification_Factor)
 
     reaction_calculator(DF_lower,
                         DF.tail(1)["Radium-225"].item(),
-                        DF.tail(1)["Actinium-225"].item())
+                        DF.tail(1)["Actinium-225"].item(),
+                        Reaction_Rate_Modification_Factor)
 
     reaction_calculator(DF_upper,
                         DF.tail(1)["Radium-225"].item(),
-                        DF.tail(1)["Actinium-225"].item())
+                        DF.tail(1)["Actinium-225"].item(),
+                        Reaction_Rate_Modification_Factor)
 
     reaction_calculator(DF_custom,
                         DF.tail(1)["Radium-225"].item(),
-                        DF.tail(1)["Actinium-225"].item())
+                        DF.tail(1)["Actinium-225"].item(),
+                        Reaction_Rate_Modification_Factor)
 
     DF.to_csv("output.csv")
     DF_proj.to_csv("projection.csv")

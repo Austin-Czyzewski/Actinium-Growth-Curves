@@ -5,4 +5,7 @@
  "Standard deviations from average":2,
  "Project energy":13.6,
  "Radium target mass (g)":0.0342,
- "Show all daughters":false}
+ "Adjustable ratio":false,
+ "Fudge factor":1.56,
+ "Reaction rate modification factor":1.0,
+ "mGy per min per watt":1.3}
