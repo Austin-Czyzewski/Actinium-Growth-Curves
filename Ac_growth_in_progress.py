@@ -119,6 +119,10 @@ def reaction_rate_calculator(energy):
 def dose_to_accumulated_power(dose):
     return dose/mGy_min_watt/60
 
+def power_to_integrated_power(power,dt):
+    '''takes power in W and dt in seconds and returns kwHr of integrated power'''
+    return(power/1000*dt/3600)
+
 def main(beam_data):
     
         
@@ -194,14 +198,11 @@ def main(beam_data):
     #######################
 
 
-    mask = (DF['Extraction'] == 'YES')
+    mask = (DF['Extraction'] == 'NO')
     masked_df = DF[mask]
 
     Projected_power = masked_df["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).mean()
     Power_std = masked_df["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).std()
-
-    # Projected_power = DF["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).mean()
-    # Power_std = DF["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).std()
 
     End = DF["Date and Time"].tail(1).item().to_pydatetime() # Get the last date
     # Create a series of datetime objects with parameters from meta data for projection
@@ -391,4 +392,5 @@ def main(beam_data):
     plt.savefig(file_name, bbox_inches = 'tight')
 
 if __name__ == '__main__':
-    main("Beam data.csv")
+    main("irradiation log.csv")
+##    main("Beam data.csv")
