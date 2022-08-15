@@ -116,7 +116,10 @@ def reaction_rate_calculator(energy):
     return reaction_rate
 
 
-def dose_to_accumulated_power(dose):
+def dose_to_accumulated_power(dose,dt):
+    '''takes a dose measurement in Gy and a time step in seconds from the
+    previous measurement and estimates an integrated power in kWhr required to
+    produce that dose.'''
     return dose/mGy_min_watt/60
 
 def power_to_integrated_power(power,dt):
@@ -134,13 +137,9 @@ def main(beam_data):
         
     DF = pd.read_csv(beam_data,parse_dates=True)
     DFmeas = pd.read_csv("Target measurements.csv")
-    DF["Integrated Power (kWhr from Acc)"] = DF["Accumulated Dose"].apply(dose_to_accumulated_power)
 
-    # Create calculated data
-    Integrated_power_list = list(DF["Integrated Power (kWhr from Acc)"])
     DF["Date and Time"] = parse_dates((DF["Date and Time"]))
     DF["Elapsed time (s)"] = (DF["Date and Time"] - DF["Date and Time"][0]).dt.total_seconds()
-
     delta = []
     for i,t in enumerate(DF["Elapsed time (s)"]):
         if i==0:
@@ -149,6 +148,13 @@ def main(beam_data):
             delta.append(t-DF["Elapsed time (s)"][i-1])
 
     DF["dt (s)"] = delta
+
+    # Create calculated data
+##    DF["Integrated Power (kWhr from Acc)"] = DF["Accumulated Dose"].apply(dose_to_accumulated_power)
+    
+    DF["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(DF["Accumulated Dose"],DF["dt (s)"])
+    Integrated_power_list = list(DF["Integrated Power (kWhr from Acc)"])
+    
     start_time = DF["Date and Time"][0].to_pydatetime()
 
     # Scale power data because reasons... Ask Chad about this
