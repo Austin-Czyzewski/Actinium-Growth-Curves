@@ -340,7 +340,7 @@ def main(beam_data):
     Assumptions for projection: {:2.0f} mg RaT, {:3.0f} +/- {:3.0f} W and {:3.0f} W with proper beam steering.".format(1000*meta["Radium target mass (g)"],
                                                                                                                                       Projected_power*1000,
                                                                                                                                       Interval*1000,
-                                                                                                                                      meta["Custom projection power"]*1000))
+                                                                                                                                      meta["Custom projection power"]))
     trans = transforms.blended_transform_factory(
          ax.transAxes, fig.transFigure
     )              # Makes x axis 'axes' coordinates and y axis 'figure' coordinates

@@ -1,5 +1,5 @@
-{"Custom projection power":200,
- "Project length (days)":14,
+{"Custom projection power":235,
+ "Project length (days)":46,
  "Project dt (s)": 86400,
  "Moving avg length":40,
  "Standard deviations from average":2,
