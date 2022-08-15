@@ -109,10 +109,9 @@ def reaction_rate_calculator(energy,Reaction_Rate_Modification_Factor):
     return reaction_rate
 
 
-def dose_to_accumulated_power(dose,dt,mGy_min_watt):
-    '''takes a dose measurement in Gy and a time step in seconds from the
-    previous measurement and estimates an integrated power in kWhr required to
-    produce that dose.'''
+def dose_to_accumulated_power(dose,mGy_min_watt):
+    '''takes a dose measurement in Gy and estimates an integrated power in kWhr
+    required to produce that dose. Based on historical measurements.'''
     return dose/mGy_min_watt/60
 
 def power_to_integrated_power(power,dt):
@@ -153,7 +152,6 @@ def main(beam_data):
 ##    DF["Integrated Power (kWhr from Acc)"] = DF["Accumulated Dose"].apply(dose_to_accumulated_power)
     
     DF["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(DF["Accumulated Dose"],
-                                                                       DF["dt (s)"],
                                                                        mGy_min_watt)
     
     Integrated_power_list = list(DF["Integrated Power (kWhr from Acc)"])
@@ -243,7 +241,7 @@ def main(beam_data):
     DF_lower["Integrated Power (kWhr from Acc)"] = Projected_power - Interval
     DF_upper["Integrated Power (kWhr from Acc)"] = Projected_power + Interval
 
-    DF_custom["Integrated Power (kWhr from Acc)"] = meta["Custom projection power"]
+    DF_custom["Integrated Power (kWhr from Acc)"] = meta["Custom projection power"]*(DF_custom["dt (s)"]/3600)/1000
 
     reaction_calculator(DF_proj,
                         DF.tail(1)["Radium-225"].item(),
