@@ -119,8 +119,6 @@ def power_to_integrated_power(power,dt):
     return(power/1000*dt/3600)
 
 def main(beam_data):
-    
-        
     # ------------------- R E T R I E V E   D A T A  ---------------------------- #
 
     # Import data from file
@@ -209,10 +207,14 @@ def main(beam_data):
     mask = (DF['Extraction'] == 'NO')
     masked_df = DF[mask]
 
-    Projected_power = masked_df["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).mean()
-    Power_std = masked_df["Integrated Power (kWhr from Acc)"].tail(meta["Moving avg length"]).std()
+    Dose_mean = masked_df["Accumulated Dose"].tail(meta["Moving avg length"]).mean()
+    Dose_std = masked_df["Accumulated Dose"].tail(meta["Moving avg length"]).std()
+    
+    Projected_power = dose_to_accumulated_power(Dose_mean,mGy_min_watt)/Fudge_Factor
+    Power_std = dose_to_accumulated_power(Dose_std,mGy_min_watt)/Fudge_Factor
 
     End = DF["Date and Time"].tail(1).item().to_pydatetime() # Get the last date
+    
     # Create a series of datetime objects with parameters from meta data for projection
     dates = [End + DT.timedelta(seconds=x*meta["Project dt (s)"]) for x in range(int(86400*meta["Project length (days)"]/meta["Project dt (s)"]))]
     DF_proj = pd.DataFrame(columns=masked_df.columns)
@@ -238,8 +240,10 @@ def main(beam_data):
     DF_upper = DF_proj.copy()
 
     Interval = meta["Standard deviations from average"]*Power_std
-    DF_lower["Integrated Power (kWhr from Acc)"] = Projected_power - Interval
-    DF_upper["Integrated Power (kWhr from Acc)"] = Projected_power + Interval
+    DF_lower["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(Dose_mean-Dose_std*meta["Standard deviations from average"],
+                                                                             mGy_min_watt)
+    DF_upper["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(Dose_mean+Dose_std*meta["Standard deviations from average"],
+                                                                             mGy_min_watt)
 
     DF_custom["Integrated Power (kWhr from Acc)"] = meta["Custom projection power"]*(DF_custom["dt (s)"]/3600)/1000
 
