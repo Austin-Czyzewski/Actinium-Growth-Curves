@@ -147,40 +147,10 @@ def main(beam_data):
     DF["dt (s)"] = delta
 
     # Create calculated data
-##    DF["Integrated Power (kWhr from Acc)"] = DF["Accumulated Dose"].apply(dose_to_accumulated_power)
-    
     DF["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(DF["Accumulated Dose"],
-                                                                       mGy_min_watt)
-    
-    Integrated_power_list = list(DF["Integrated Power (kWhr from Acc)"])
+                                                                       mGy_min_watt)/Fudge_Factor
     
     start_time = DF["Date and Time"][0].to_pydatetime()
-
-    # Scale power data because reasons... Ask Chad about this
-    index_of_3_18_measurement   = 38
-    index_of_ra_addition        = 183
-    Acc_Iso_power_ratio         = [1.56, 2.7, 1.56] # 1.56 up to 3/18 measurement
-                                            # 2.0 from 3/18 to 4/5
-                                            # 1.56 again projecting
-                                    
-    Integrated_power_list   = np.array(Integrated_power_list)
-
-    if Adjustable_Ratio:
-        
-        for i,v in enumerate(Integrated_power_list):
-            if i < index_of_3_18_measurement:
-                Integrated_power_list[i] /= Acc_Iso_power_ratio[0]
-                
-            if i >= index_of_3_18_measurement and i < index_of_ra_addition:
-                Integrated_power_list[i] /= Acc_Iso_power_ratio[1]
-                
-            if i >= index_of_ra_addition:
-                Integrated_power_list[i] /= Acc_Iso_power_ratio[2]
-        
-    else:
-        Integrated_power_list = Integrated_power_list/Fudge_Factor
-
-    DF["Integrated Power (kWhr from Acc)"] = Integrated_power_list
 
     latest_time = DF["Date and Time"].tail(1).item().to_pydatetime()
 
