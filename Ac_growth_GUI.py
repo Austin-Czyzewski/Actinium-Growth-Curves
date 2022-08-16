@@ -3,6 +3,7 @@ from tkinter.filedialog import askopenfile
 from tkinter import ttk
 import os
 from datetime import datetime
+from Ac_growth import *
 
 def get_last_data(path):
     with open(path,'r') as f:
@@ -78,7 +79,7 @@ class GUI:
         self.reportPB.grid(column=2,row=0,padx=2,pady=2)
 
     def report_cmd(self):
-        pass
+        Ac_growth(self.beamPath.get())
     def dose_frame(self):
         # Create elements
         self.doseFR = tk.LabelFrame(self.master,
