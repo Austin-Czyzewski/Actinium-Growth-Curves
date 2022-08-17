@@ -94,7 +94,8 @@ def reaction_calculator(df,ra_225_init,ac_225_init,Reaction_Rate_Modification_Fa
     df.reset_index()
     
 def reaction_rate_calculator(energy,Reaction_Rate_Modification_Factor):
-    '''Reaction rates given in rxns/g/e for Green Curve Geometry at 1.0 ml solution volume'''
+    '''Reaction rates given in rxns/g/e for Green Curve Geometry at 10 ml
+    flat RaT solution volume'''
     # energy_list         = [10.0,        11.0,       12.0,       13.0,       14.0,       15.0]
     energy_list         = [9,10,11,12,13,14,15,16,17,18,19,20]
     # reaction_rate_list  = [9.970e-7,    2.058e-6,   3.862e-6,   6.494e-6,   9.636e-6,   1.283e-5]
