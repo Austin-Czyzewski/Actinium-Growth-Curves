@@ -13,17 +13,17 @@ def get_last_data(path):
         try:              
             print(last_line)
             last_energy = float(last_line.split(",")[3])
-            print(last_energy)
             last_target_mass = float(last_line.split(",")[-2])*1000
-            print(last_target_mass)
-            last_date = 10
+            last_date = parse_date(last_line.split(",")[0])
+            last_time = last_line.split(",")[2]
+            last_str = "Last data point: "+last_date.strftime('%y%m%d')+" "+last_time
             
         except:
             print("Failed to extract last line data")
             last_energy = 15
             last_target_mass = 100
             last_date = today
-        return(last_energy, last_target_mass,last_date)
+        return(last_energy, last_target_mass,last_str)
 
 
 class GUI:
@@ -92,7 +92,7 @@ class GUI:
                                     text="Dose data entry")
 
         self.last_data_label = ttk.Label(self.doseFR,
-                                         text=self.last_data_datetime)
+                                         textvariable=self.last_data_datetime)
         
         self.end_time_label = ttk.Label(self.doseFR,
                                         text="End time (24hr format)")
