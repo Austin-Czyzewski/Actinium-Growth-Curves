@@ -16,12 +16,14 @@ def get_last_data(path):
             print(last_energy)
             last_target_mass = float(last_line.split(",")[-2])*1000
             print(last_target_mass)
+            last_date = 10
             
         except:
             print("Failed to extract last line data")
             last_energy = 15
             last_target_mass = 100
-        return(last_energy, last_target_mass)
+            last_date = today
+        return(last_energy, last_target_mass,last_date)
 
 
 class GUI:
@@ -40,6 +42,7 @@ class GUI:
         self.targetmass = tk.DoubleVar()
         self.energy  = tk.DoubleVar()
         self.beamPath = tk.StringVar()
+        self.last_data_datetime = tk.StringVar(value=" ")
 
         # Frame creation
         self.dose_frame()
@@ -55,9 +58,12 @@ class GUI:
     def dir_cmd(self):
         self.beamPath.set(askopenfile().name)
         print("Beam path set to {}".format(self.beamPath.get()))
-        energy, mass = get_last_data(self.beamPath.get())
+
+        # Open the data base and retrieve recent data for form autofill
+        energy, mass, datetime = get_last_data(self.beamPath.get())
         self.energy.set(energy)
         self.targetmass.set(mass)
+        self.last_data_datetime.set(datetime)
         
     def dir_frame(self):
         self.dirFR = tk.LabelFrame(self.master,
@@ -84,6 +90,9 @@ class GUI:
         # Create elements
         self.doseFR = tk.LabelFrame(self.master,
                                     text="Dose data entry")
+
+        self.last_data_label = ttk.Label(self.doseFR,
+                                         text=self.last_data_datetime)
         
         self.end_time_label = ttk.Label(self.doseFR,
                                         text="End time (24hr format)")
@@ -125,28 +134,30 @@ class GUI:
                                    command=self.submit_data)
 
         # Place elements
-        self.date_label.grid(column=0, row=0)
-        self.dateEntry.grid(column=1, row=0)
+        self.last_data_label.grid(column=0, row=0)
+        self.date_label.grid(column=0, row=1)
+        self.dateEntry.grid(column=1, row=1)
         
-        self.end_time_label.grid(column=0,row=1)
-        self.hourEntry.grid(column=1, row=1)
-        self.colon_label.grid(column=2,row=1)
-        self.minEntry.grid(column=3,row=1)
+        self.end_time_label.grid(column=0,row=2)
+        self.hourEntry.grid(column=1, row=2)
+        self.colon_label.grid(column=2,row=2)
+        self.minEntry.grid(column=3,row=2)
         
         
-        self.dose_label.grid(column=0,row=2)
-        self.doseEntry.grid(column=1,row=2)
+        self.dose_label.grid(column=0,row=3)
+        self.doseEntry.grid(column=1,row=3)
         
-        self.extraction_label.grid(column=0,row=3)
-        self.extractionCB.grid(column=1,row=3)
+        self.extraction_label.grid(column=0,row=4)
+        self.extractionCB.grid(column=1,row=4)
         
-        self.target_mass_label.grid(column=0,row=4)
-        self.targetEntry.grid(column=1,row=4)
-        self.energy_label.grid(column=0, row=5)
-        self.energyEntry.grid(column=1, row=5)
+        self.target_mass_label.grid(column=0,row=5)
+        self.targetEntry.grid(column=1,row=5)
         
-        self.submitPB.grid(column=0,row=6,columnspan=5)
-
+        self.energy_label.grid(column=0, row=6)
+        self.energyEntry.grid(column=1, row=6)
+        
+        self.submitPB.grid(column=0,row=7,columnspan=5)
+        
     def submit_data(self):
         
         submit_day = datetime.strptime(self.date.get(), '%y%m%d').day
