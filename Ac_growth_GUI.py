@@ -5,27 +5,6 @@ import os
 from datetime import datetime
 from Ac_growth import *
 
-def get_last_data(path):
-    with open(path,'r') as f:
-        lines = f.readlines()
-        last_line = lines[-1]
-        
-        try:              
-            print(last_line)
-            last_energy = float(last_line.split(",")[3])
-            last_target_mass = float(last_line.split(",")[-2])*1000
-            last_date = parse_date(last_line.split(",")[0])
-            last_time = last_line.split(",")[2]
-            last_str = "Last data point: "+last_date.strftime('%y%m%d')+" "+last_time
-            
-        except:
-            print("Failed to extract last line data")
-            last_energy = 15
-            last_target_mass = 100
-            last_date = today
-        return(last_energy, last_target_mass,last_str)
-
-
 class GUI:
     def __init__(self,master,version,mod_date):
         self.version = version
@@ -54,16 +33,36 @@ class GUI:
 
         self.dirFR.grid_columnconfigure(1,weight=1)
         self.doseFR.grid_columnconfigure(1,weight=1)
+
+    def get_last_data(self,path):
+        with open(path,'r') as f:
+            lines = f.readlines()
+            last_line = lines[-1]
+            
+            try:              
+                print(last_line)
+                last_energy = float(last_line.split(",")[3])
+                last_target_mass = float(last_line.split(",")[-2])*1000
+                last_date = parse_date(last_line.split(",")[0])
+                last_time = last_line.split(",")[2]
+                last_str = "Last data point: "+last_date.strftime('%y%m%d')+" "+last_time
+                
+            except:
+                print("Failed to extract last line data")
+                last_energy = 15
+                last_target_mass = 100
+                last_date = today
+
+            self.energy.set(last_energy)
+            self.targetmass.set(last_target_mass)
+            self.last_data_datetime.set(last_str)
         
     def dir_cmd(self):
         self.beamPath.set(askopenfile().name)
         print("Beam path set to {}".format(self.beamPath.get()))
 
         # Open the data base and retrieve recent data for form autofill
-        energy, mass, datetime = get_last_data(self.beamPath.get())
-        self.energy.set(energy)
-        self.targetmass.set(mass)
-        self.last_data_datetime.set(datetime)
+        self.get_last_data(self.beamPath.get())
         
     def dir_frame(self):
         self.dirFR = tk.LabelFrame(self.master,
@@ -86,6 +85,7 @@ class GUI:
 
     def report_cmd(self):
         Ac_growth(self.beamPath.get())
+        
     def dose_frame(self):
         # Create elements
         self.doseFR = tk.LabelFrame(self.master,
