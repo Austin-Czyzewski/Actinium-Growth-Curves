@@ -35,8 +35,8 @@ class GUI:
 
         # GUI variable definitions
         self.date = tk.StringVar(value = datetime.today().strftime('%y%m%d'))
-        self.hour = tk.DoubleVar(value=23)
-        self.minute = tk.DoubleVar(value=59)
+        self.hour = tk.StringVar(value="23")
+        self.minute = tk.StringVar(value="59")
         self.dose = tk.DoubleVar()
         self.extraction = tk.BooleanVar(value=False)
         self.targetmass = tk.DoubleVar()
@@ -164,14 +164,14 @@ class GUI:
         submit_month = datetime.strptime(self.date.get(), '%y%m%d').month
         submit_year = datetime.strptime(self.date.get(), '%y%m%d').year
         
-        submit_hour = str(int(self.hour.get())).zfill(2)
+        submit_hour = str(self.hour.get()).zfill(2)
         
         if int(submit_hour) > 23:
             print("Hour must be between 0 and 23")
             return()
 
-        submit_minute = serialize(self.minute.get())
-        submit_minute = str(int(self.minute.get())).zfill(2)
+        
+        submit_minute = str(self.minute.get()).zfill(2)
         submit_energy = self.energy.get()
         submit_dose = self.dose.get()
         submit_target_mass = self.targetmass.get()/1000
