@@ -169,7 +169,8 @@ class GUI:
         if int(submit_hour) > 23:
             print("Hour must be between 0 and 23")
             return()
-            
+
+        submit_minute = serialize(self.minute.get())
         submit_minute = str(int(self.minute.get())).zfill(2)
         submit_energy = self.energy.get()
         submit_dose = self.dose.get()
