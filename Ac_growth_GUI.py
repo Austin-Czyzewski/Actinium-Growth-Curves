@@ -22,16 +22,21 @@ class GUI:
         self.energy  = tk.DoubleVar()
         self.beamPath = tk.StringVar()
         self.last_data_datetime = tk.StringVar(value=" ")
+        self.custom_power = tk.DoubleVar()
+        self.sim_length = tk.IntVar()
 
         # Frame creation
-        self.dose_frame()
         self.dir_frame()
+        self.dose_frame()
+        self.sim_frame()
 
         # Frame placement
-        self.dirFR.grid(row=0,column=0)
-        self.doseFR.grid(row=1,column=0)
+        self.dirFR.grid(row=0,column=0,padx=2,pady=2)
+        self.simFR.grid(row=1,column=0,padx=2,pady=2)
+        self.doseFR.grid(row=2,column=0,padx=2,pady=2)
 
         self.dirFR.grid_columnconfigure(1,weight=1)
+        self.simFR.grid_columnconfigure(1,weight=1)
         self.doseFR.grid_columnconfigure(1,weight=1)
 
     def get_last_data(self,path):
@@ -63,6 +68,9 @@ class GUI:
 
         # Open the data base and retrieve recent data for form autofill
         self.get_last_data(self.beamPath.get())
+
+    def report_cmd(self):
+        Ac_growth(self.beamPath.get())
         
     def dir_frame(self):
         self.dirFR = tk.LabelFrame(self.master,
@@ -83,8 +91,26 @@ class GUI:
         self.ask_filePB.grid(column=1,row=0,padx=2,pady=2)
         self.reportPB.grid(column=2,row=0,padx=2,pady=2)
 
-    def report_cmd(self):
-        Ac_growth(self.beamPath.get())
+    def sim_frame(self):
+        self.simFR = tk.LabelFrame(self.master,
+                                   text="Simulation settings")
+
+        # Create elements
+        self.customPowerLabel = ttk.Label(self.simFR,
+                                          text="Enter custom power in Watts")
+        self.customPowerEntry = ttk.Entry(self.simFR,
+                                          textvariable=self.custom_power)
+        self.simLengthLabel = ttk.Label(self.simFR,
+                                        text="Enter the length of the simulation in days")
+        self.simLengthEntry = ttk.Entry(self.simFR,
+                                        textvariable=self.sim_length)
+
+        # Place elements
+        self.customPowerLabel.grid(column=0,row=0,padx=2,pady=2)
+        self.customPowerEntry.grid(column=1,row=0,padx=2,pady=2)
+
+        self.simLengthLabel.grid(column=0,row=1,padx=2,pady=2)
+        self.simLengthEntry.grid(column=1,row=1,padx=2,pady=2)
         
     def dose_frame(self):
         # Create elements
