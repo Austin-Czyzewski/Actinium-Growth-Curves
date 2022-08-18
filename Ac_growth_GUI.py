@@ -38,7 +38,8 @@ class GUI:
         self.dirFR.grid_columnconfigure(1,weight=1)
         self.simFR.grid_columnconfigure(1,weight=1)
         self.doseFR.grid_columnconfigure(1,weight=1)
-
+        
+# --------------------- H E L P E R   F U N C T I O N S --------------------- #
     def get_last_data(self,path):
         with open(path,'r') as f:
             lines = f.readlines()
@@ -61,7 +62,8 @@ class GUI:
             self.energy.set(last_energy)
             self.targetmass.set(last_target_mass)
             self.last_data_datetime.set(last_str)
-        
+
+# ----------------- P U S H   B U T T O N   C O M M A N D S ----------------- #
     def dir_cmd(self):
         self.beamPath.set(askopenfile().name)
         print("Beam path set to {}".format(self.beamPath.get()))
@@ -71,7 +73,37 @@ class GUI:
 
     def report_cmd(self):
         Ac_growth(self.beamPath.get())
+
+    def submit_data_cmd(self):
         
+        submit_day = datetime.strptime(self.date.get(), '%y%m%d').day
+        submit_month = datetime.strptime(self.date.get(), '%y%m%d').month
+        submit_year = datetime.strptime(self.date.get(), '%y%m%d').year
+        
+        submit_hour = str(self.hour.get()).zfill(2)
+        
+        if int(submit_hour) > 23:
+            print("Hour must be between 0 and 23")
+            return()
+
+        
+        submit_minute = str(self.minute.get()).zfill(2)
+        submit_energy = self.energy.get()
+        submit_dose = self.dose.get()
+        submit_target_mass = self.targetmass.get()/1000
+        submit_extraction = ("YES" if self.extraction.get() == True else "NO")
+        
+        with open(self.beamPath.get(), 'a') as file:
+            file.write(f"{submit_month}/{submit_day}/{submit_year} {submit_hour}:{submit_minute},")
+            file.write(f"{submit_month}/{submit_day}/{submit_year},")
+            file.write(f"{submit_hour}:{submit_minute},")
+            file.write(f"{submit_energy},{submit_dose},0,{submit_target_mass},")
+            file.write(f"{submit_extraction}\n")
+            
+        self.dose.set(0)
+        # Open the data base and retrieve recent data for form autofill
+        self.get_last_data(self.beamPath.get())
+# ------------------- L A B E L   F R A M E   S E T U P S ------------------- #
     def dir_frame(self):
         self.dirFR = tk.LabelFrame(self.master,
                                    text="Choose a beam data file")
@@ -157,7 +189,7 @@ class GUI:
         
         self.submitPB = ttk.Button(self.doseFR,
                                    text="Submit",
-                                   command=self.submit_data)
+                                   command=self.submit_data_cmd)
 
         # Place elements
         self.last_data_label.grid(column=0, row=0)
@@ -183,36 +215,6 @@ class GUI:
         self.energyEntry.grid(column=1, row=6)
         
         self.submitPB.grid(column=0,row=7,columnspan=5)
-        
-    def submit_data(self):
-        
-        submit_day = datetime.strptime(self.date.get(), '%y%m%d').day
-        submit_month = datetime.strptime(self.date.get(), '%y%m%d').month
-        submit_year = datetime.strptime(self.date.get(), '%y%m%d').year
-        
-        submit_hour = str(self.hour.get()).zfill(2)
-        
-        if int(submit_hour) > 23:
-            print("Hour must be between 0 and 23")
-            return()
-
-        
-        submit_minute = str(self.minute.get()).zfill(2)
-        submit_energy = self.energy.get()
-        submit_dose = self.dose.get()
-        submit_target_mass = self.targetmass.get()/1000
-        submit_extraction = ("YES" if self.extraction.get() == True else "NO")
-        
-        with open(self.beamPath.get(), 'a') as file:
-            file.write(f"{submit_month}/{submit_day}/{submit_year} {submit_hour}:{submit_minute},")
-            file.write(f"{submit_month}/{submit_day}/{submit_year},")
-            file.write(f"{submit_hour}:{submit_minute},")
-            file.write(f"{submit_energy},{submit_dose},0,{submit_target_mass},")
-            file.write(f"{submit_extraction}\n")
-            
-        self.dose.set(0)
-        # Open the data base and retrieve recent data for form autofill
-        self.get_last_data(self.beamPath.get())
         
 if __name__ == '__main__':
 
