@@ -211,7 +211,9 @@ class GUI:
             file.write(f"{submit_extraction}\n")
             
         self.dose.set(0)
-                                   
+        # Open the data base and retrieve recent data for form autofill
+        self.get_last_data(self.beamPath.get())
+        
 if __name__ == '__main__':
 
     __version__ = "0.0.1"
