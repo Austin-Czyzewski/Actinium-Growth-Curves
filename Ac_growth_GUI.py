@@ -35,8 +35,8 @@ class GUI:
 
         # GUI variable definitions
         self.date = tk.StringVar(value = datetime.today().strftime('%y%m%d'))
-        self.hour = tk.StringVar(value="23")
-        self.minute = tk.StringVar(value="59")
+        self.hour = tk.StringVar(value="23") # If IntVar, leading zeroes are interpreted as octal numbers
+        self.minute = tk.StringVar(value="59") # If IntVar, leading zeroes are interpreted as octal numbers
         self.dose = tk.DoubleVar()
         self.extraction = tk.BooleanVar(value=False)
         self.targetmass = tk.DoubleVar()
