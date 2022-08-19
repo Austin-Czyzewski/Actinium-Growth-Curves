@@ -212,9 +212,9 @@ def Ac_growth(beam_data):
 
     Interval = meta["Standard deviations from average"]*Power_std
     DF_lower["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(Dose_mean-Dose_std*meta["Standard deviations from average"],
-                                                                             mGy_min_watt)
+                                                                             mGy_min_watt)/Fudge_Factor
     DF_upper["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(Dose_mean+Dose_std*meta["Standard deviations from average"],
-                                                                             mGy_min_watt)
+                                                                             mGy_min_watt)/Fudge_Factor
 
     DF_custom["Integrated Power (kWhr from Acc)"] = meta["Custom projection power"]*(DF_custom["dt (s)"]/3600)/1000
 
@@ -276,6 +276,7 @@ def Ac_growth(beam_data):
             h,M = pt["Time"].split(":")
             date = DT.datetime(int(y),int(m),int(d),int(h),int(M))
             data = pt["Ac-225"]
+            print(date,data)
             ax.plot(date,float(data),'kx',ms=10)
             ax.text(date,float(data),data,ha='right',va='center',fontsize = 10) 
 
