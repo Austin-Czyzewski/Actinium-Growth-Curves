@@ -182,9 +182,6 @@ def Ac_growth(beam_data):
     Dose_mean = meta["Project dt (s)"]*masked_df["Dose rate (Gy/s)"].tail(meta["Moving avg length"]).mean()
     Dose_std = meta["Project dt (s)"]*masked_df["Dose rate (Gy/s)"].tail(meta["Moving avg length"]).std()
     
-##    Dose_mean = masked_df["Accumulated Dose"].tail(meta["Moving avg length"]).mean()
-##    Dose_std = masked_df["Accumulated Dose"].tail(meta["Moving avg length"]).std()
-    
     Projected_power = dose_to_accumulated_power(Dose_mean,mGy_min_watt)/Fudge_Factor
     Power_std = dose_to_accumulated_power(Dose_std,mGy_min_watt)/Fudge_Factor
 
