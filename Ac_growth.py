@@ -150,6 +150,7 @@ def Ac_growth(beam_data):
     # Create calculated data
     DF["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(DF["Accumulated Dose"],
                                                                        mGy_min_watt)/Fudge_Factor
+    DF["Dose rate (Gy/s)"] = DF["Accumulated Dose"]/DF["dt (s)"]
     
     start_time = DF["Date and Time"][0].to_pydatetime()
 
@@ -178,8 +179,11 @@ def Ac_growth(beam_data):
     mask = (DF['Extraction'] == 'NO')
     masked_df = DF[mask]
 
-    Dose_mean = masked_df["Accumulated Dose"].tail(meta["Moving avg length"]).mean()
-    Dose_std = masked_df["Accumulated Dose"].tail(meta["Moving avg length"]).std()
+    Dose_mean = meta["Project dt (s)"]*masked_df["Dose rate (Gy/s)"].tail(meta["Moving avg length"]).mean()
+    Dose_std = meta["Project dt (s)"]*masked_df["Dose rate (Gy/s)"].tail(meta["Moving avg length"]).std()
+    
+##    Dose_mean = masked_df["Accumulated Dose"].tail(meta["Moving avg length"]).mean()
+##    Dose_std = masked_df["Accumulated Dose"].tail(meta["Moving avg length"]).std()
     
     Projected_power = dose_to_accumulated_power(Dose_mean,mGy_min_watt)/Fudge_Factor
     Power_std = dose_to_accumulated_power(Dose_std,mGy_min_watt)/Fudge_Factor
