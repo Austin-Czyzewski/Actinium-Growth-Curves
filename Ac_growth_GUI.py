@@ -4,6 +4,7 @@ from tkinter import ttk
 import os
 from datetime import datetime
 from Ac_growth import *
+import json
 
 class GUI:
     def __init__(self,master,version,mod_date):
@@ -24,6 +25,7 @@ class GUI:
         self.last_data_datetime = tk.StringVar(value=" ")
         self.custom_power = tk.DoubleVar()
         self.sim_length = tk.IntVar()
+        self.movingAvgLen = tk.IntVar()
 
         # Frame creation
         self.dir_frame()
@@ -103,6 +105,15 @@ class GUI:
         self.dose.set(0)
         # Open the data base and retrieve recent data for form autofill
         self.get_last_data(self.beamPath.get())
+
+    def apply_sim_settings(self):
+        with open ("Ac_growth_meta.txt","w") as f:
+            meta = json.load(f)
+            meta["Custom projection power"] = self.custom_power.get()
+            meta["Project length (days)"] = self.sim_length.get()
+            meta["Moving avg length"] = self.movingAvgLen.get()
+            json.dump(meta,f,indent=4)
+    
 # ------------------- L A B E L   F R A M E   S E T U P S ------------------- #
     def dir_frame(self):
         self.dirFR = tk.LabelFrame(self.master,
@@ -136,6 +147,14 @@ class GUI:
                                         text="Enter the length of the simulation in days")
         self.simLengthEntry = ttk.Entry(self.simFR,
                                         textvariable=self.sim_length)
+        self.movingAvgLenLabel = ttk.Label(self.simFR,
+                                           text="Enter the length of the moving average in data points")
+
+        self.movingAvgLenEntry = ttk.Entry(self.simFR,
+                                           textvariable=self.movingAvgLen)
+        self.applyPB = ttk.Button(self.simFR,
+                                  text="Apply",
+                                  command=self.apply_sim_settings)
 
         # Place elements
         self.customPowerLabel.grid(column=0,row=0,padx=2,pady=2)
@@ -143,6 +162,11 @@ class GUI:
 
         self.simLengthLabel.grid(column=0,row=1,padx=2,pady=2)
         self.simLengthEntry.grid(column=1,row=1,padx=2,pady=2)
+
+        self.movingAvgLenLabel.grid(column=0,row=2,padx=2,pady=2)
+        self.movingAvgLenEntry.grid(column=1,row=2,padx=2,pady=2)
+
+        self.applyPB.grid(column=0,row=3,padx=2,pady=2)
         
     def dose_frame(self):
         # Create elements
