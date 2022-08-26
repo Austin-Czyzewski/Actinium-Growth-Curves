@@ -53,14 +53,15 @@ class GUI:
                 last_target_mass = float(last_line.split(",")[-2])*1000
                 last_date = parse_date(last_line.split(",")[0])
                 last_time = last_line.split(",")[2]
-                last_str = "Last data point: "+last_date.strftime('%y%m%d')+" "+last_time
                 
             except:
                 print("Failed to extract last line data")
                 last_energy = 15
                 last_target_mass = 100
-                last_date = today
+                last_time = "00:00"
+                last_date = datetime.today()
 
+            last_str = "Last data point: "+last_date.strftime('%y%m%d')+" "+last_time
             self.energy.set(last_energy)
             self.targetmass.set(last_target_mass)
             self.last_data_datetime.set(last_str)
@@ -107,8 +108,9 @@ class GUI:
         self.get_last_data(self.beamPath.get())
 
     def apply_sim_settings(self):
-        with open ("Ac_growth_meta.txt","w") as f:
+        with open ("Ac_growth_meta.txt","r") as f:
             meta = json.load(f)
+        with open ("Ac_growth_meta.txt","w") as f:
             meta["Custom projection power"] = self.custom_power.get()
             meta["Project length (days)"] = self.sim_length.get()
             meta["Moving avg length"] = self.movingAvgLen.get()
