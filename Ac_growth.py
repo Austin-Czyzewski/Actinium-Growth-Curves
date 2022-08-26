@@ -11,6 +11,7 @@
  '''
 # ------------------- L I B R A R Y   I M P O R T S ------------------------- #
 
+import random
 from matplotlib import pyplot as plt
 from matplotlib import transforms  
 import matplotlib 
@@ -31,17 +32,18 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 # ------------------ H E L P E R  F U N C T I O N S ------------------------- #
-def parse_dates(Series):
+def parse_dates(DF, date_col, time_col):
     new_series = []
-    for d in Series:
-        new_series.append(parse_date(d))
+    
+    for i,row in DF.iterrows():
+        new_datetime = parse_date(row[date_col],row[time_col])
+        new_series.append(new_datetime)
 
     return(pd.Series(new_series))
 
-def parse_date(date):
-    d,t = date.split(" ")
-    m,D,Y = d.split("/")
-    H,M = t.split(":")
+def parse_date(date, time):
+    m,D,Y = date.split("/")
+    H,M = time.split(":")
     return(DT.datetime(int(Y),int(m),int(D),int(H),int(M)))
 
 def calculate_delta(df):
@@ -129,6 +131,24 @@ def power_to_integrated_power(power,dt):
     '''takes power in W and dt in seconds and returns kwHr of integrated power'''
     return(power/1000*dt/3600)
 
+def createPowerProjection(df,mean_power,std_power,include_schedule=False):
+    '''Takes a mean power from historical data, a standard deviation of power
+    from historical data and populates the integrated power column of the given
+    data frame'''
+    Schedule = "Schedule.csv"
+    SchDF = pd.read_csv(Schedule)
+    
+    print(SchDF.head())
+    
+    power = []
+    for d in df["Date and Time"]:
+        new_power = -1
+        while new_power < 0:
+            new_power = random.normalvariate(mean_power,std_power)
+        power.append(new_power)
+            
+    df["Integrated Power (kWhr from Acc)"] = power
+    
 def Ac_growth(beam_data):
     # ------------------- R E T R I E V E   D A T A  ---------------------------- #
 
@@ -146,7 +166,7 @@ def Ac_growth(beam_data):
     DF = pd.read_csv(beam_data,parse_dates=True)
     DFmeas = pd.read_csv("Target measurements.csv")
 
-    DF["Date and Time"] = parse_dates((DF["Date and Time"]))
+    DF["Date and Time"] = parse_dates(DF,"Date","Time")
     DF["Elapsed time (s)"] = (DF["Date and Time"] - DF["Date and Time"][0]).dt.total_seconds()
     calculate_delta(DF)
 
@@ -199,7 +219,8 @@ def Ac_growth(beam_data):
     #######################
     DF_proj = pd.DataFrame(columns=masked_df.columns)
     DF_proj["Date and Time"] = dates
-    DF_proj["Integrated Power (kWhr from Acc)"] = Projected_power
+    createPowerProjection(DF_proj,Projected_power,Power_std,include_schedule=False)
+    
     DF_proj["Energy (MeV)"] = float(meta["Project energy"])
     DF_proj["Radium target mass (g)"] = float(meta["Radium target mass (g)"])
     DF_proj["Elapsed time (s)"] = (DF_proj["Date and Time"] - DF["Date and Time"][0]).dt.total_seconds()
@@ -214,7 +235,7 @@ def Ac_growth(beam_data):
                                                                              mGy_min_watt)/Fudge_Factor
     DF_upper["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(Dose_mean+Dose_std*meta["Standard deviations from average"],
                                                                              mGy_min_watt)/Fudge_Factor
-
+                             
     DF_custom["Integrated Power (kWhr from Acc)"] = meta["Custom projection power"]*(DF_custom["dt (s)"]/3600)/1000
 
     reaction_calculator(DF_proj,
@@ -250,8 +271,8 @@ def Ac_growth(beam_data):
     # Plot projections
     ax.plot(DF_proj["Date and Time"], DF_proj["Radium-225 Activity (mCi)"],'r--')
     ax.plot(DF_proj["Date and Time"], DF_proj["Actinium-225 Activity (mCi)"],'g--')
-    ax.plot(DF_proj["Date and Time"], DF_custom["Radium-225 Activity (mCi)"],'r:')
-    ax.plot(DF_proj["Date and Time"], DF_custom["Actinium-225 Activity (mCi)"],'g:')
+    ax.plot(DF_custom["Date and Time"], DF_custom["Radium-225 Activity (mCi)"],'r:')
+    ax.plot(DF_custom["Date and Time"], DF_custom["Actinium-225 Activity (mCi)"],'g:')
 
 
     ax.fill_between(DF_upper["Date and Time"],
