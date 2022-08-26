@@ -193,13 +193,10 @@ def Ac_growth(beam_data):
     
     # Create a series of datetime objects with parameters from meta data for projection
     dates = [End + DT.timedelta(seconds=x*meta["Project dt (s)"]) for x in range(int(86400*meta["Project length (days)"]/meta["Project dt (s)"]))]
-    DF_proj = pd.DataFrame(columns=masked_df.columns)
-
 
     #######################
     # Projections         #
     #######################
-    
     DF_proj = pd.DataFrame(columns=masked_df.columns)
     DF_proj["Date and Time"] = dates
     DF_proj["Integrated Power (kWhr from Acc)"] = Projected_power
@@ -296,7 +293,7 @@ def Ac_growth(beam_data):
                 
     ax.set_xticklabels(ax.get_xticklabels(), rotation = 45, fontsize = 14);
     ax.set(
-         title      = r'Niowave R&D milestones $^{225}$Ac Campaign',
+         title      = r'Niowave Production Milestones $^{225}$Ac Campaign',
          ylabel     = r'Activity (mCi)',
          ylim       = ylim,
          yscale     = 'linear'
