@@ -44,6 +44,16 @@ def parse_date(date):
     H,M = t.split(":")
     return(DT.datetime(int(Y),int(m),int(D),int(H),int(M)))
 
+def calculate_delta(df):
+    delta = []
+    for i,t in enumerate(df["Elapsed time (s)"]):
+        if i==0:
+            delta.append(df["Elapsed time (s)"][0])
+        else:
+            delta.append(t-df["Elapsed time (s)"][i-1])
+
+    df["dt (s)"] = delta
+    
 def reaction_calculator(df,ra_225_init,ac_225_init,Reaction_Rate_Modification_Factor):
     '''Takes a data frame with "Integrated Power (kWhr from Acc)", "dt (s)",
     "Energy (MeV)", and "Radium target mass (g)" columns and appends "power",
@@ -138,14 +148,7 @@ def Ac_growth(beam_data):
 
     DF["Date and Time"] = parse_dates((DF["Date and Time"]))
     DF["Elapsed time (s)"] = (DF["Date and Time"] - DF["Date and Time"][0]).dt.total_seconds()
-    delta = []
-    for i,t in enumerate(DF["Elapsed time (s)"]):
-        if i==0:
-            delta.append(DF["Elapsed time (s)"][0])
-        else:
-            delta.append(t-DF["Elapsed time (s)"][i-1])
-
-    DF["dt (s)"] = delta
+    calculate_delta(DF)
 
     # Create calculated data
     DF["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(DF["Accumulated Dose"],
@@ -198,15 +201,8 @@ def Ac_growth(beam_data):
     DF_proj["Energy (MeV)"] = float(meta["Project energy"])
     DF_proj["Radium target mass (g)"] = float(meta["Radium target mass (g)"])
     DF_proj["Elapsed time (s)"] = (DF_proj["Date and Time"] - DF["Date and Time"][0]).dt.total_seconds()
+    calculate_delta(DF_proj)
 
-    delta = []
-    for i,t in enumerate(DF_proj["Elapsed time (s)"]):
-        if i==0:
-            delta.append(t-DF.tail(1)["Elapsed time (s)"].item())
-        else:
-            delta.append(t-DF_proj["Elapsed time (s)"][i-1])
-
-    DF_proj["dt (s)"] = delta
     DF_custom = DF_proj.copy()
     DF_lower = DF_proj.copy()
     DF_upper = DF_proj.copy()
