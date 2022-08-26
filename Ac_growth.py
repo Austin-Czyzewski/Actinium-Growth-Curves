@@ -177,7 +177,8 @@ def Ac_growth(beam_data):
 
     # ------------------------ Projection Algorithm          ---------------- #
     #######################
-
+    # Projection settings #
+    #######################
 
     mask = (DF['Extraction'] == 'NO')
     masked_df = DF[mask]
@@ -196,6 +197,10 @@ def Ac_growth(beam_data):
 
 
     #######################
+    # Projections         #
+    #######################
+    
+    DF_proj = pd.DataFrame(columns=masked_df.columns)
     DF_proj["Date and Time"] = dates
     DF_proj["Integrated Power (kWhr from Acc)"] = Projected_power
     DF_proj["Energy (MeV)"] = float(meta["Project energy"])
@@ -382,4 +387,3 @@ def Ac_growth(beam_data):
 
 if __name__ == '__main__':
     Ac_growth("irradiation log.csv")
-##    main("Beam data.csv")
