@@ -137,14 +137,19 @@ def createPowerProjection(df,mean_power,std_power,include_schedule=False):
     data frame'''
     Schedule = "Schedule.csv"
     SchDF = pd.read_csv(Schedule)
-    
+    SchDF["Start date and time"] = parse_dates(SchDF,"Start date","Start time")
+    SchDF["End date and time"] = parse_dates(SchDF,"End date","End time")
     print(SchDF.head())
     
     power = []
     for d in df["Date and Time"]:
-        new_power = -1
-        while new_power < 0:
-            new_power = random.normalvariate(mean_power,std_power)
+        for i,row in SchDF.iterrows():
+            if row["Start date and time"] < d < row["End date and time"]:
+                new_power = 0
+            else:
+                new_power = -1
+                while new_power < 0:
+                    new_power = random.normalvariate(mean_power,std_power)
         power.append(new_power)
             
     df["Integrated Power (kWhr from Acc)"] = power
