@@ -42,9 +42,12 @@ def parse_dates(DF, date_col, time_col):
     return(pd.Series(new_series))
 
 def parse_date(date, time):
-    m,D,Y = date.split("/")
-    H,M = time.split(":")
-    return(DT.datetime(int(Y),int(m),int(D),int(H),int(M)))
+    try:
+        m,D,Y = date.split("/")
+        H,M = time.split(":")
+        return(DT.datetime(int(Y),int(m),int(D),int(H),int(M)))
+    except:
+        print("Failed to parse date. Expected a date and time, received: {} {}".format(date, time))
 
 def calculate_delta(df):
     delta = []

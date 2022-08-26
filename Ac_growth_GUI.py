@@ -10,9 +10,13 @@ class GUI:
     def __init__(self,master,version,mod_date):
         self.version = version
         self.mod_date = mod_date
-
+        
         self.master = master
 
+        # Get meta data
+        with open ("Ac_growth_meta.txt","r") as f:
+            meta = json.load(f)
+            
         # GUI variable definitions
         self.date = tk.StringVar(value = datetime.today().strftime('%y%m%d'))
         self.hour = tk.StringVar(value="23") # If IntVar, leading zeroes are interpreted as octal numbers
@@ -23,9 +27,9 @@ class GUI:
         self.energy  = tk.DoubleVar()
         self.beamPath = tk.StringVar()
         self.last_data_datetime = tk.StringVar(value=" ")
-        self.custom_power = tk.DoubleVar()
-        self.sim_length = tk.IntVar()
-        self.movingAvgLen = tk.IntVar()
+        self.custom_power = tk.DoubleVar(value=meta["Custom projection power"])
+        self.sim_length = tk.IntVar(value=meta["Project length (days)"])
+        self.movingAvgLen = tk.IntVar(value=meta["Moving avg length"])
 
         # Frame creation
         self.dir_frame()
@@ -46,7 +50,6 @@ class GUI:
         try:
             df = pd.read_csv(path)
             last_line = df.tail(1)
-            print(last_line["Energy (MeV)"].item())
             self.energy.set(last_line["Energy (MeV)"].item())
             self.targetmass.set(last_line["Radium target mass (g)"].item())
             last_date = parse_date(last_line["Date"].item(),
@@ -57,6 +60,7 @@ class GUI:
             self.last_data_datetime.set(last_str)
         except Exception as ex:
             print("Failed to retrieve last line\nException: {}".format(ex))
+            print(last_line["Energy (MeV)"].item())
 
 # ----------------- P U S H   B U T T O N   C O M M A N D S ----------------- #
     def dir_cmd(self):
