@@ -149,6 +149,7 @@ def createPowerProjection(df,mean_power,std_power,include_schedule=False):
         for i,row in SchDF.iterrows():
             if row["Start date and time"] < d < row["End date and time"]:
                 new_power = 0
+                break
             else:
                 new_power = -1
                 while new_power < 0:
