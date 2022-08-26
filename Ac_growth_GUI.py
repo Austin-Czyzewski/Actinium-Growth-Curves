@@ -43,29 +43,20 @@ class GUI:
         
 # --------------------- H E L P E R   F U N C T I O N S --------------------- #
     def get_last_data(self,path):
-        with open(path,'r') as f:
-            lines = f.readlines()
-            last_line = lines[-1]
+        try:
+            df = pd.read_csv(path)
+            last_line = df.tail(1)
+            print(last_line["Energy (MeV)"].item())
+            self.energy.set(last_line["Energy (MeV)"].item())
+            self.targetmass.set(last_line["Radium target mass (g)"].item())
+            last_date = parse_date(last_line["Date"].item(),
+                                   last_line["Time"].item())
             
-            try:              
-                print(last_line)
-                last_energy = float(last_line.split(",")[3])
-                last_target_mass = float(last_line.split(",")[-2])*1000
-                last_date = parse_date(last_line.split(",")[1],last_line.split(",")[2])
-                last_time = last_line.split(",")[2]
-                
-            except Exception as ex:
-                
-                print("Failed to extract last line data\n{}".format(ex))
-                last_energy = 15
-                last_target_mass = 100
-                last_time = "00:00"
-                last_date = datetime.today()
-
+            last_time = last_line["Time"].item()
             last_str = "Last data point: "+last_date.strftime('%y%m%d')+" "+last_time
-            self.energy.set(last_energy)
-            self.targetmass.set(last_target_mass)
             self.last_data_datetime.set(last_str)
+        except Exception as ex:
+            print("Failed to retrieve last line\nException: {}".format(ex))
 
 # ----------------- P U S H   B U T T O N   C O M M A N D S ----------------- #
     def dir_cmd(self):
