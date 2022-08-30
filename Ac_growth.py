@@ -134,7 +134,7 @@ def power_to_integrated_power(power,dt):
     '''takes power in W and dt in seconds and returns kwHr of integrated power'''
     return(power/1000*dt/3600)
 
-def createPowerProjection(df,mean_power,std_power,include_schedule=False):
+def createPowerProjection(df,mean_power,std_power,stds_from_avg,include_schedule=False):
     '''Takes a mean power from historical data, a standard deviation of power
     from historical data and populates the integrated power column of the given
     data frame'''
@@ -168,8 +168,8 @@ def createPowerProjection(df,mean_power,std_power,include_schedule=False):
         sd = tempDF[col].std()
         
         mean_power.append(mean)
-        upper_power.append(mean+2*sd)
-        lower_power.append(mean-2*sd)
+        upper_power.append(mean+stds_from_avg*sd)
+        lower_power.append(mean-stds_from_avg*sd)
 
     return(upper_power,mean_power,lower_power)
 
@@ -243,7 +243,11 @@ def Ac_growth(beam_data):
     #######################
     DF_proj = pd.DataFrame(columns=masked_df.columns)
     DF_proj["Date and Time"] = dates
-    upper, mean, lower = createPowerProjection(DF_proj,Projected_power,Power_std,include_schedule=False)
+    upper, mean, lower = createPowerProjection(DF_proj,
+                                               Projected_power,
+                                               Power_std,
+                                               meta["Standard deviations from average"],
+                                               include_schedule=False)
     
     DF_proj["Energy (MeV)"] = float(meta["Project energy"])
     DF_proj["Radium target mass (g)"] = float(meta["Radium target mass (g)"])
