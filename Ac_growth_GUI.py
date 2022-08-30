@@ -51,7 +51,7 @@ class GUI:
             df = pd.read_csv(path)
             last_line = df.tail(1)
             self.energy.set(last_line["Energy (MeV)"].item())
-            self.targetmass.set(last_line["Radium target mass (g)"].item())
+            self.targetmass.set(last_line["Radium target mass (g)"].item()*1000)
             last_date = parse_date(last_line["Date"].item(),
                                    last_line["Time"].item())
             
