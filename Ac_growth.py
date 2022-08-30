@@ -143,21 +143,36 @@ def createPowerProjection(df,mean_power,std_power,include_schedule=False):
     SchDF["Start date and time"] = parse_dates(SchDF,"Start date","Start time")
     SchDF["End date and time"] = parse_dates(SchDF,"End date","End time")
     print(SchDF.head())
-    
-    power = []
-    for d in df["Date and Time"]:
-        for i,row in SchDF.iterrows():
-            if row["Start date and time"] < d < row["End date and time"]:
-                new_power = 0
-                break
-            else:
-                new_power = -1
-                while new_power < 0:
-                    new_power = random.normalvariate(mean_power,std_power)
-        power.append(new_power)
-            
-    df["Integrated Power (kWhr from Acc)"] = power
-    
+
+    sims = []
+    for i in range(10):
+        power = []
+        for d in df["Date and Time"]:
+            for i,row in SchDF.iterrows():
+                if row["Start date and time"] < d < row["End date and time"]:
+                    new_power = 0
+                    break
+                else:
+                    new_power = -1
+                    while new_power < 0:
+                        new_power = random.normalvariate(mean_power,std_power)
+            power.append(new_power)
+        sims.append(power)
+    tempDF = pd.DataFrame(sims)
+
+    mean_power = []
+    upper_power = []
+    lower_power = []
+    for col in tempDF:
+        mean = tempDF[col].mean()
+        sd = tempDF[col].std()
+        
+        mean_power.append(mean)
+        upper_power.append(mean+2*sd)
+        lower_power.append(mean-2*sd)
+
+    return(upper_power,mean_power,lower_power)
+
 def Ac_growth(beam_data):
     # ------------------- R E T R I E V E   D A T A  ---------------------------- #
 
@@ -228,7 +243,7 @@ def Ac_growth(beam_data):
     #######################
     DF_proj = pd.DataFrame(columns=masked_df.columns)
     DF_proj["Date and Time"] = dates
-    createPowerProjection(DF_proj,Projected_power,Power_std,include_schedule=False)
+    upper, mean, lower = createPowerProjection(DF_proj,Projected_power,Power_std,include_schedule=False)
     
     DF_proj["Energy (MeV)"] = float(meta["Project energy"])
     DF_proj["Radium target mass (g)"] = float(meta["Radium target mass (g)"])
@@ -238,13 +253,13 @@ def Ac_growth(beam_data):
     DF_custom = DF_proj.copy()
     DF_lower = DF_proj.copy()
     DF_upper = DF_proj.copy()
+    
+    DF_proj["Integrated Power (kWhr from Acc)"] = mean
+    DF_lower["Integrated Power (kWhr from Acc)"] = lower
+    DF_upper["Integrated Power (kWhr from Acc)"] = upper
 
     Interval = meta["Standard deviations from average"]*Power_std
-    DF_lower["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(Dose_mean-Dose_std*meta["Standard deviations from average"],
-                                                                             mGy_min_watt)/Fudge_Factor
-    DF_upper["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(Dose_mean+Dose_std*meta["Standard deviations from average"],
-                                                                             mGy_min_watt)/Fudge_Factor
-                             
+                           
     DF_custom["Integrated Power (kWhr from Acc)"] = meta["Custom projection power"]*(DF_custom["dt (s)"]/3600)/1000
 
     reaction_calculator(DF_proj,
