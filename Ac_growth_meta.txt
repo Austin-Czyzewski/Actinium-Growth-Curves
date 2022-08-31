@@ -1,13 +1,14 @@
 {
     "Custom projection power": 0.0,
-    "Project length (days)": 60,
+    "Project length (days)": 16,
     "Project dt (s)": 7200,
-    "Moving avg length": 64,
+    "Moving avg length": 120,
     "Standard deviations from average": 2,
     "Project energy": 13.6,
     "Radium target mass (g)": 0.0411,
     "Adjustable ratio": false,
     "Fudge factor": 0.95,
     "Reaction rate modification factor": 1.0,
-    "mGy per min per watt": 1.3
+    "mGy per min per watt": 1.3,
+    "plot y-scale":0.25
 }

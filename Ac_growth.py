@@ -313,7 +313,7 @@ def Ac_growth(beam_data):
 
 
     # Plotting black dashed line at last reported data
-    ylim    = (0,0.5)
+    ylim    = (0,meta["plot y-scale"])
     ax.plot([latest_time,latest_time],[ylim[0],ylim[1]],'k--')
     ax.set_ylim(0.0,ylim[1])
 
