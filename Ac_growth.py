@@ -147,15 +147,23 @@ def createPowerProjection(df,mean_power,std_power,stds_from_avg,include_schedule
     sims = []
     for i in range(10):
         power = []
+        extraction = []
         for d in df["Date and Time"]:
             for i,row in SchDF.iterrows():
                 if row["Start date and time"] < d < row["End date and time"]:
                     new_power = 0
+                    if row["Extraction"] == "YES":
+                        extraction.append("YES")
+                    
+                    else:
+                        extraction.append("NO")
                     break
                 else:
                     new_power = -1
                     while new_power < 0:
                         new_power = random.normalvariate(mean_power,std_power)
+                    extraction.append("NO")
+                    
             power.append(new_power)
         sims.append(power)
     tempDF = pd.DataFrame(sims)
@@ -171,7 +179,7 @@ def createPowerProjection(df,mean_power,std_power,stds_from_avg,include_schedule
         upper_power.append(mean+stds_from_avg*sd)
         lower_power.append(mean-stds_from_avg*sd)
 
-    return(upper_power,mean_power,lower_power)
+    return(upper_power,mean_power,lower_power,extraction)
 
 def Ac_growth(beam_data):
     # ------------------- R E T R I E V E   D A T A  ---------------------------- #
@@ -243,16 +251,17 @@ def Ac_growth(beam_data):
     #######################
     DF_proj = pd.DataFrame(columns=masked_df.columns)
     DF_proj["Date and Time"] = dates
-    upper, mean, lower = createPowerProjection(DF_proj,
-                                               Projected_power,
-                                               Power_std,
-                                               meta["Standard deviations from average"],
-                                               include_schedule=False)
+    upper, mean, lower, extraction = createPowerProjection(DF_proj,
+                                                           Projected_power,
+                                                           Power_std,
+                                                           meta["Standard deviations from average"],
+                                                           include_schedule=False)
     
     DF_proj["Energy (MeV)"] = float(meta["Project energy"])
     DF_proj["Radium target mass (g)"] = float(meta["Radium target mass (g)"])
     DF_proj["Elapsed time (s)"] = (DF_proj["Date and Time"] - DF["Date and Time"][0]).dt.total_seconds()
     calculate_delta(DF_proj)
+    DF_proj["Extraction"] = extraction
 
     DF_custom = DF_proj.copy()
     DF_lower = DF_proj.copy()

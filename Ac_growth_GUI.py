@@ -30,6 +30,7 @@ class GUI:
         self.custom_power = tk.DoubleVar(value=meta["Custom projection power"])
         self.sim_length = tk.IntVar(value=meta["Project length (days)"])
         self.movingAvgLen = tk.IntVar(value=meta["Moving avg length"])
+        self.ylim = tk.DoubleVar(value=meta["plot y-scale"])
 
         # Frame creation
         self.dir_frame()
@@ -110,6 +111,8 @@ class GUI:
             meta["Custom projection power"] = self.custom_power.get()
             meta["Project length (days)"] = self.sim_length.get()
             meta["Moving avg length"] = self.movingAvgLen.get()
+            meta["plot y-scale"] = self.ylim.get()
+            
             json.dump(meta,f,indent=4)
     
 # ------------------- L A B E L   F R A M E   S E T U P S ------------------- #
@@ -150,9 +153,16 @@ class GUI:
 
         self.movingAvgLenEntry = ttk.Entry(self.simFR,
                                            textvariable=self.movingAvgLen)
+
+        self.ylimLabel = ttk.Label(self.simFR,
+                                   text="Enter the upper limit of the y axis in mCi")
+        self.ylimEntry = ttk.Entry(self.simFR,
+                                   textvariable=self.ylim)
+        
         self.applyPB = ttk.Button(self.simFR,
                                   text="Apply",
                                   command=self.apply_sim_settings)
+        
 
         # Place elements
         self.customPowerLabel.grid(column=0,row=0,padx=2,pady=2)
@@ -164,7 +174,10 @@ class GUI:
         self.movingAvgLenLabel.grid(column=0,row=2,padx=2,pady=2)
         self.movingAvgLenEntry.grid(column=1,row=2,padx=2,pady=2)
 
-        self.applyPB.grid(column=0,row=3,padx=2,pady=2)
+        self.ylimLabel.grid(column=0,row=3,padx=2,pady=2)
+        self.ylimEntry.grid(column=1,row=3,padx=2,pady=2)
+
+        self.applyPB.grid(column=0,row=4,padx=2,pady=2)
         
     def dose_frame(self):
         # Create elements
