@@ -150,7 +150,7 @@ def createPowerProjection(df,mean_power,std_power,stds_from_avg,include_schedule
         extraction = []
         for d in df["Date and Time"]:
             for i,row in SchDF.iterrows():
-                if row["Start date and time"] < d < row["End date and time"]:
+                if row["Start date and time"] < d <= row["End date and time"]:
                     new_power = 0
                     if row["Extraction"] == "YES":
                         extraction.append("YES")
@@ -205,6 +205,13 @@ def Ac_growth(beam_data):
     # Create calculated data
     DF["Integrated Power (kWhr from Acc)"] = dose_to_accumulated_power(DF["Accumulated Dose"],
                                                                        mGy_min_watt)/Fudge_Factor
+
+    phase1end = DT.datetime(2022,8,19,9,0)
+##    for i,row in DF.iterrows():
+##        if row["Date and Time"].to_pydatetime() < phase1end:
+##            DF.at[i,"Integrated Power (kWhr from Acc)"] = DF.at[i,"Integrated Power (kWhr from Acc)"]*Fudge_Factor/1
+##        else:
+##            DF.at[i,"Integrated Power (kWhr from Acc)"] = DF.at[i,"Integrated Power (kWhr from Acc)"]*Fudge_Factor/1
     DF["Dose rate (Gy/s)"] = DF["Accumulated Dose"]/DF["dt (s)"]
     
     start_time = DF["Date and Time"][0].to_pydatetime()
